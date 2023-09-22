@@ -1,0 +1,42 @@
+
+<html>
+
+<head></head>
+
+<body>
+    <p>Please Register Here</p>
+    <form method="post">
+        {{ form.hidden_tag() }}
+        <p>
+        {{form.user_name.label}}
+        {{form.user_name}}
+        </p>
+        <p>
+        {{form.user_password.label}}
+        {{form.user_password}}
+        </p>
+        <p>
+        {{form.First_Name.label}}
+        {{form.First_Name}}
+        </p>
+        <p>
+        {{form.Last_Name.label}}
+        {{form.Last_Name}}
+        </p>
+        <p>
+        {{form.email.label}}
+        {{form.email}}
+        </p>
+        <p>
+        {{form.Birth_Date.label}}
+        {{form.Birth_Date}}
+        </p>
+        <p>
+        {{form.Univ_ID.label}}
+        {{form.Univ_ID}}
+        </p>
+        {{form.submit}}
+    </form>
+</body>
+
+</html>
