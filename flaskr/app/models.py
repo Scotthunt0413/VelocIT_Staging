@@ -1,6 +1,8 @@
 from app import db, login
 from flask_login import UserMixin
+from sqlalchemy.orm import declarative_base, relationship
 from werkzeug.security import generate_password_hash, check_password_hash
+from sqlalchemy import Column, ForeignKey, Integer, Table
 
 # Define the DB Schema
 class Users(UserMixin, db.Model):
@@ -19,6 +21,10 @@ class Users(UserMixin, db.Model):
         self.user_password = generate_password_hash(user_password)
     def check_password(self, user_password):
         return check_password_hash(self.user_password, user_password)
+    
+class It_User(UserMixin, db.Model):
+    __tablename__ = 'It_User'
+    It_User_ID = db.Column(db.Integer, primary_key=True)
     
 @login.user_loader
 def load_user(id):
