@@ -4,6 +4,7 @@
 <head></head>
 
 <body>
+    <p>{{msg}}</p>
     <p>Please Register Here</p>
     <form method="post">
         {{ form.hidden_tag() }}
@@ -18,10 +19,6 @@
         <p>
         {{form.First_Name.label}}
         {{form.First_Name}}
-        </p>
-        <p>
-        {{form.Middle_init.label}}
-        {{form.Middle_init}}
         </p>
         <p>
         {{form.Last_Name.label}}
