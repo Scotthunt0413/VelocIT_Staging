@@ -1,10 +1,12 @@
 
 from flask import render_template, redirect, url_for, request
 from app import app
-from app.forms import LoginForm, RegisterForm, ResetForm
+
+from app import db
+
 #from app.forms import #RegisterForm
 
-@app.route('/', methods=['GET','POST'])
+@app.route('/')
 def go():
     return redirect(url_for('index'))
 
@@ -13,6 +15,7 @@ def go():
 def index():
     return render_template('home.html')
 
+<<<<<<< HEAD
 
 @app.route('/login', methods=['GET','POST'])
 def login():
@@ -44,3 +47,5 @@ def register():
         register.set_password(user_password)
         return redirect(url_for('index'))
     return render_template('register.html', form=form) 
+=======
+>>>>>>> 1fa2100b5f19a42c9bcb2df90cd5074513d1bdda
