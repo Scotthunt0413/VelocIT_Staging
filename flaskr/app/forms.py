@@ -6,11 +6,10 @@ from wtforms.widgets import CheckboxInput, ListWidget
 # This is the Registration form for the IT Department Users
 
 class RegisterForm(FlaskForm):
-    Univ_ID = IntegerField('SCSU ID', validators=[DataRequired()], render_kw={"Placeholder" : "SCSU ID"})
-    Birth_Date = DateField('Birth Date',validators=[DataRequired()], render_kw={"placeholder": "Birth Date"})
-    First_Name = StringField('First Name: ',validators=[DataRequired()], render_kw={"placeholder" : "First Name"})
-    Middle_init = StringField('Middle Initial: ', render_kw={})
-    Last_Name = StringField('Last Name: ',validators=[DataRequired()], render_kw={"placeholder" : "Last Name"})
+    univ_id = IntegerField('SCSU ID', validators=[DataRequired()], render_kw={"Placeholder" : "SCSU ID"})
+    birth_date = DateField('Birth Date',validators=[DataRequired()], render_kw={"placeholder": "Birth Date"})
+    first_name = StringField('First Name: ',validators=[DataRequired()], render_kw={"placeholder" : "First Name"})
+    last_name = StringField('Last Name: ',validators=[DataRequired()], render_kw={"placeholder" : "Last Name"})
     email = EmailField('Email: ',validators=[DataRequired()], render_kw={"placeholder" : "Email"})
     user_name = StringField('Username', validators=[DataRequired()], render_kw={"placeholder": "Username"})
     user_password = PasswordField('Password', validators=[DataRequired()],  render_kw={"placeholder": "Password"})
