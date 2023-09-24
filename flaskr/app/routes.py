@@ -23,19 +23,24 @@ def login():
         return "user name: " + user_name + "\n Password: " + password
     return render_template('forms.html', form = form)
 
-
 @app.route('/register', methods=['GET','POST'])
 def register():
     form = RegisterForm()
     if form.validate_on_submit():
+        univ_id = form.univ_id.data
+        birth_date = form.birth_date.data
+        first_name = form.first_name.data
+        last_name = form.last_name.data
+        email = form.email.data
         user_name = form.user_name.data
         user_password = form.user_password.data
-        First_Name = form.First_Name.data
-        Last_Name = form.Last_Name.data
-        email = form.email.data
-        bdate = form.Birth_Date.data
-        Univ_ID = form.Univ_ID.data
-        response = "user name: " + user_name + "\n Password: " + user_password + "\n First Name: " + First_Name + "\n Last Name: " + Last_Name + "\n Email: " + email + "\n Birth Date: " + str(bdate) + "\n SCSU ID: " + str(Univ_ID)
-        return response
-    return render_template('register.html', form = form)
-
+        register = It_User(univ_id=univ_id,
+                        birth_date=birth_date,
+                        first_name=first_name,
+                        last_name=last_name,
+                        email=email,
+                        user_name=user_name,
+                        user_passwor=user_password)
+        register.set_password(user_password)
+        return redirect(url_for('index'))
+    return render_template('register.html', form=form) 
