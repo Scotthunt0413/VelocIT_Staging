@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+
+<head></head>
+
+<body>
+    <p>Please Login Here</p>
+    <form method="post">
+        {{ form.hidden_tag() }}
+        <p>
+        {{form.user_name.label}}
+        {{form.user_name}}
+        </p>
+        <p>
+        {{form.password.label}}
+        {{form.password}}
+        </p>
+        {{form.submit}}
+    </form>
+</body>
+
+</html>
