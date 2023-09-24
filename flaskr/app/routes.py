@@ -4,7 +4,7 @@ from app import app
 
 from app import db
 
-#from app.forms import #RegisterForm
+from app.forms import RegisterForm, LoginForm
 
 @app.route('/')
 def go():
