@@ -25,16 +25,16 @@ def login():
         user_name = form.user_name.data
         user = db.session.query(Users).filter_by(user_name=user_name).first()
         if user is None:
-            form.username.data = ''
+            form.user_name.data = ''
             form.password.data = ''
-            return render_template('index.html', form=form, msg=f'No user found with username "{user_name}"')
+            return render_template('login.html', form=form, msg=f'No user found with username "{user_name}"')
         if not user.check_password(form.password.data):
-            form.username.data = ''
+            form.user_name.data = ''
             form.password.data = ''
-            return render_template('index.html', form=form, msg=f"Incorrect Password")
-        password = form.password.data
-        return "user name: " + user_name + "\n Password: " + password
-    return render_template('forms.html', form = form)
+            return render_template('login.html', form=form, msg=f"Incorrect Password")
+        login_user(user)
+        return redirect(url_for('test'))
+    return render_template('login.html', form = form)
 
 @app.route('/register', methods=['GET','POST'])
 def register():
@@ -77,7 +77,7 @@ def register():
 @login_required
 @app.route('/test')
 def test():
-    return render_template('login.html')
+    return render_template('logined_in.html')
 
 @app.route('/logout')
 def logout():
