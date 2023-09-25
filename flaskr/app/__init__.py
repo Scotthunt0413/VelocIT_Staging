@@ -5,18 +5,8 @@ from flask_login import LoginManager
 
 from os import environ
 
-
-
 load_dotenv('.flaskenv')
 
-IP = environ.get('MYSQL_IP')
-USERNAME = environ.get('MYSQL_USER')
-PASSWORD = environ.get('MYSQL_PASS')
-DB_NAME = environ.get('MYSQL_DB')
-app = Flask(__name__)
-app.config['SECRET_KEY'] = 'VelocIT'
-
-load_dotenv('.flaskenv')
 IP = environ.get('MYSQL_IP')
 USERNAME = environ.get('MYSQL_USER')
 PASSWORD = environ.get('MYSQL_PASS')
