@@ -1,6 +1,7 @@
 from flask import Flask
 from dotenv import load_dotenv
 from os import environ
+from flask_sqlalchemy import SQLAlchemy
 
 
 load_dotenv('.flaskenv')
