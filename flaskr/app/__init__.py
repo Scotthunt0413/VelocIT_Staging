@@ -4,6 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 
 
 from os import environ
+from flask_sqlalchemy import SQLAlchemy
 
 
 load_dotenv('.flaskenv')
