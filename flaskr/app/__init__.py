@@ -1,5 +1,7 @@
 from flask import Flask
 from dotenv import load_dotenv
+from flask_sqlalchemy import SQLAlchemy
+
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'VelocIT'
@@ -7,11 +9,10 @@ app.config['SECRET_KEY'] = 'VelocIT'
 load_dotenv('.flaskenv')
 
 
-from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 
 from os import environ
-import mysql.connector
+
 
 # force loading of environment variables
 from dotenv import load_dotenv
