@@ -6,11 +6,15 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
     </head>
     <body>
-        <div class="container">
-            <div class="forms">
-                <!-- <div class='login forms'>-->
-            </div>
-        </div>
+
+        {% if current_user.is_authenticated %}
+        Hi {{ current_user.First_Name }}!
+        {% endif %}
+
+        <p>Here are all the loan requests and details:</p>
+        <table>
+            
+        </table>
 
 
 
