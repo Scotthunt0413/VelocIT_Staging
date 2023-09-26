@@ -7,27 +7,11 @@ from app import db
 from flask_login import login_user, logout_user, current_user, login_required
 #from app.forms import #RegisterForm
 
-from app import db
-
-from app.forms import RegisterForm, LoginForm
-
-from app import db
-
-from app.forms import RegisterForm, LoginForm
-
-@app.route('/')
+@app.route('/', methods=['GET','POST'])
 def go():
-    return redirect(url_for('index'))
-
-
-@app.route('/home', methods=['GET','POST'])
-def index():
-    name = f"Welcone{Users.First_Name}"
-    return render_template('home.html')
-
-
-@app.route('/login', methods=['GET','POST'])
-def login():
+    #Redirect authenticated users to homepage
+    if current_user.is_authenticated:
+        return(redirect(url_for('home')))
     form = LoginForm()
     if form.validate_on_submit():
         user_name = form.user_name.data
@@ -41,7 +25,7 @@ def login():
             form.password.data = ''
             return render_template('login.html', form=form, msg=f"Incorrect Password")
         login_user(user)
-        return redirect(url_for('test'))
+        return redirect(url_for('home'))
     return render_template('login.html', form = form)
 
 @app.route('/register', methods=['GET','POST'])
@@ -79,13 +63,13 @@ def register():
             db.session.commit()
             login_user(user)
             msg = 'Registraton successful'
-            return redirect(url_for('test'))
+            return redirect(url_for('home'))
     return render_template('register.html', form = form)
 
 @login_required
-@app.route('/test')
-def test():
-    return render_template('logined_in.html')
+@app.route('/home')
+def home():
+    return render_template('home.html')
 
 @app.route('/logout')
 def logout():

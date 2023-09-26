@@ -2,6 +2,7 @@ from flask import Flask
 from dotenv import load_dotenv
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
+from flask_bootstrap import Bootstrap
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'VelocIT'
@@ -30,6 +31,8 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"]= True
 db = SQLAlchemy(app)
 
 login = LoginManager(app)
+
+bootstrap = Bootstrap(app)
 
 
 
