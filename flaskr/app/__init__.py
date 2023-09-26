@@ -7,8 +7,6 @@ from flask_bootstrap import Bootstrap
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'VelocIT'
 
-load_dotenv('.flaskenv')
-
 from os import environ
 
 
