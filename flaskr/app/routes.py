@@ -32,19 +32,6 @@ def go():
 def register():
     form = RegisterForm()
     if form.validate_on_submit():
-        # user_name = form.user_name.data
-        # user_password = form.user_password.data
-        # First_Name = form.First_Name.data
-        # Last_Name = form.Last_Name.data
-        # email = form.email.data
-        # bdate = form.Birth_Date.data
-        # uid = form.Univ_ID.data
-
-        # response = "user name: " + user_name + "\n Password: " + user_password + "\n First Name: " + First_Name + "\n Last Name: " + Last_Name + "\n Email: " + email + "\n Birth Date: " + str(bdate) + "\n SCSU ID: " + str(uid)
-        # if Middle_init:
-        #     response += "\n Middle Initial: " + Middle_init
-        # return response
-    
         user = db.session.query(Users).filter_by(user_name=form.user_name.data).first()
         if user is not None:
             return render_template('register.html',
