@@ -23,9 +23,6 @@ class Users(UserMixin, db.Model):
     def check_password(self, user_password):
         return check_password_hash(self.user_password, user_password)
     
-class IT_User(UserMixin, db.Model):
-    __tablename__ = 'It_User'
-    It_User_ID = db.Column(db.Integer, primary_key=True)
     
 @login.user_loader
 def load_user(id):
