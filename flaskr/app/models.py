@@ -6,15 +6,16 @@ from sqlalchemy import Column, ForeignKey, Integer, Table
 
 # Define the DB Schema
 class Users(UserMixin, db.Model):
-    __tablename__ = 'users'
+    __tablename__ = 'Users'
     id = db.Column(db.Integer, primary_key=True)
+    user_name = db.Column(db.String(64), unique=True, nullable=False)
+    user_password = db.Column(db.String(256), unique=True, nullable=False)
     Univ_ID = db.Column(db.String(32), unique=True, nullable=False)
     Birth_Date = db.Column(db.String(256), unique=False, nullable=False)
     First_Name = db.Column(db.String(32), unique=False, nullable=False)
     Last_Name = db.Column(db.String(64), unique=True, nullable=False)
     email = db.Column(db.String(64), unique=True, nullable=False)
-    user_name = db.Column(db.String(64), unique=True, nullable=False)
-    user_password = db.Column(db.String(256), unique=True, nullable=False)
+    
 
     def set_password(self, user_password):
         # Store hashed (encrypted) password in database
@@ -22,7 +23,7 @@ class Users(UserMixin, db.Model):
     def check_password(self, user_password):
         return check_password_hash(self.user_password, user_password)
     
-class It_User(UserMixin, db.Model):
+class IT_User(UserMixin, db.Model):
     __tablename__ = 'It_User'
     It_User_ID = db.Column(db.Integer, primary_key=True)
     
