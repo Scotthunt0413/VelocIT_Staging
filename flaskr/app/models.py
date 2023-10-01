@@ -32,7 +32,8 @@ class Loans(db.Model):
     faculty = db.Column(db.String(255), unique=True, nullable=False, primary_key=True)
     device = db.Column(db.String(255), unique=True, nullable=False)
     is_located = db.Column(db.String(255), unique=True, nullable=False, primary_key=True)
-    loan_date_in = db.Column(db.String(255), unique=True, nullable=False, primary_key=True)
+    loan_date_in = db.Column(db.String(8), unique=True, nullable=False, primary_key=True)
+    loan_date_out = db.Column(db.String(8),nullable=False)
     why = db.Column(db.String(255), unique=True, nullable=False, primary_key=True)
     
 @login.user_loader
