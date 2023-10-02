@@ -6,15 +6,16 @@ from sqlalchemy import Column, ForeignKey, Integer, Table
 
 # Define the DB Schema
 class Users(UserMixin, db.Model):
-    __tablename__ = 'users'
+    __tablename__ = 'Users'
     id = db.Column(db.Integer, primary_key=True)
+    user_name = db.Column(db.String(64), unique=True, nullable=False)
+    user_password = db.Column(db.String(256), unique=True, nullable=False)
     Univ_ID = db.Column(db.String(32), unique=True, nullable=False)
     Birth_Date = db.Column(db.String(256), unique=False, nullable=False)
     First_Name = db.Column(db.String(32), unique=False, nullable=False)
     Last_Name = db.Column(db.String(64), unique=True, nullable=False)
     email = db.Column(db.String(64), unique=True, nullable=False)
-    user_name = db.Column(db.String(64), unique=True, nullable=False)
-    user_password = db.Column(db.String(256), unique=True, nullable=False)
+    
 
     def set_password(self, user_password):
         # Store hashed (encrypted) password in database
@@ -31,7 +32,8 @@ class Loans(db.Model):
     faculty = db.Column(db.String(255), unique=True, nullable=False, primary_key=True)
     device = db.Column(db.String(255), unique=True, nullable=False)
     is_located = db.Column(db.String(255), unique=True, nullable=False, primary_key=True)
-    loan_date_in = db.Column(db.String(255), unique=True, nullable=False, primary_key=True)
+    loan_date_in = db.Column(db.String(8), unique=True, nullable=False, primary_key=True)
+    loan_date_out = db.Column(db.String(8),nullable=False)
     why = db.Column(db.String(255), unique=True, nullable=False, primary_key=True)
     
 @login.user_loader

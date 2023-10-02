@@ -1,11 +1,9 @@
-
-from flask import render_template, redirect, url_for, request
 from app import app
+from flask import render_template, redirect, url_for, request
 from app.forms import LoginForm, RegisterForm, ResetForm
 from app.models import Users
 from app import db
 from flask_login import login_user, logout_user, current_user, login_required
-#from app.forms import #RegisterForm
 
 @app.route('/', methods=['GET','POST'])
 def go():
@@ -28,6 +26,8 @@ def go():
         return redirect(url_for('home'))
     return render_template('login.html', form = form)
 
+
+    
 @app.route('/register', methods=['GET','POST'])
 def register():
     form = RegisterForm()

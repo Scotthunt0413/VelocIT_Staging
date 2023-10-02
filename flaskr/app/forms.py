@@ -34,7 +34,10 @@ class ResetForm(FlaskForm):
 
 #WE will need to readdress the loan form we want to start the login process first 
 class LoanForm(FlaskForm):
+   
    faculty = StringField('Faculty Name: ',validators=[DataRequired()])
+   faculty_first_name=StringField('deployed to',validators=[DataRequired()])
+   faculty_last_name=StringField('faculty last name', validators=[DataRequired()])
    device = StringField('Which device do you need? ',validators=[DataRequired()])
    is_located = StringField('Device Loca ',validators=[DataRequired()])
    loan_Date_In = DateField('When will this device be deployed? ',validators=[DataRequired()])

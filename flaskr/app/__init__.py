@@ -26,6 +26,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = DB_CONFIG_STR
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"]= True
 
 # Create database connection and associate it with the Flask application
+
 db = SQLAlchemy(app)
 
 login = LoginManager(app)
