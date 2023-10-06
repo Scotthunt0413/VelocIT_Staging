@@ -15,6 +15,8 @@
 
         {% if current_user.is_authenticated %}
         Hi {{ current_user.First_Name }}!
+        <a href="{{url_for('logout')}}">Logout user</a>
+        <a href="{{url_for('register')}}">Register New User</a>
         {% endif %}
 
         <p>Here are all the loan requests and details:</p>
@@ -27,9 +29,22 @@
                 <td>Why do you need this device?</td>
             
             </tr>
+            {% for loan in loans %}
+            <tr>
+                <td>{{loan.faculty}}</td>
+                <td>{{loan.device}}</td>
+                <td>{{loan.is_located}}</td>
+                <td>{{loan.loan_date_in}}</td>
+                <td>{{loan.why}}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="5">No Data</td>
+            </tr>
+            {% endfor %}
         </table>
 
-        <a href = "{{ url_for(request_loan)}}">Request Loan</a>
+        <a href = "{{ url_for('request_loan')}}">Request Loan</a>
 
 
     </body>

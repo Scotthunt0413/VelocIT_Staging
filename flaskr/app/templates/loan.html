@@ -1,0 +1,32 @@
+<html>
+    <head>
+
+    </head>
+    <body>
+        <p>Input Loan Details Here</p>
+        <form method="post">
+            {{ form.hidden_tag() }}
+            <p>
+                {{form.faculty.label}}
+                {{form.faculty}}
+            </p>
+            <p>
+                {{form.device.label}}
+                {{form.device}}
+            </p>
+            <p>
+                {{form.is_located.label}}
+                {{form.is_located}}
+            </p>
+            <p>
+                {{form.loan_Date_In.label}}
+                {{form.loan_Date_In}}
+            </p>
+            <p>
+                {{form.why.label}}
+                {{form.why}}
+            </p>
+            {{form.submit}}
+        </form>
+    </body>
+</html>

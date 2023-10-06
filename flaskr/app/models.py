@@ -30,9 +30,9 @@ class Loans(db.Model):
     __tablename__ = 'Device Loans'
     faculty = db.Column(db.String(255), unique=True, nullable=False, primary_key=True)
     device = db.Column(db.String(255), unique=True, nullable=False)
-    is_located = db.Column(db.String(255), unique=True, nullable=False, primary_key=True)
-    loan_date_in = db.Column(db.String(255), unique=True, nullable=False, primary_key=True)
-    why = db.Column(db.String(255), unique=True, nullable=False, primary_key=True)
+    is_located = db.Column(db.String(255), unique=True, nullable=False)
+    loan_date_in = db.Column(db.String(255), unique=True, nullable=False)
+    why = db.Column(db.String(255), unique=True, nullable=False)
     
 @login.user_loader
 def load_user(id):

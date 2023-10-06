@@ -1,11 +1,21 @@
 
 from flask import render_template, redirect, url_for, request
 from app import app
-from app.forms import LoginForm, RegisterForm, ResetForm
-from app.models import Users
+from app.forms import LoginForm, RegisterForm, ResetForm, LoanForm
+from app.models import Users, It_User, Loans
 from app import db
 from flask_login import login_user, logout_user, current_user, login_required
 #from app.forms import #RegisterForm
+
+def getAllLoanData():
+    loans = db.session.query(Loans.device, Loans.faculty,Loans.why,Loans.is_located,Loans.loan_date_in)
+    return [{
+        'device': device,
+        'faculty': faculty,
+        'why': why,
+        'is_located': is_located,
+        'loan_date_in': loan_date_in
+    } for(device, faculty, why, is_located, loan_date_in) in loans]
 
 @app.route('/', methods=['GET','POST'])
 def go():
@@ -56,9 +66,26 @@ def register():
 @login_required
 @app.route('/home')
 def home():
-    return render_template('home.html')
+    loans = getAllLoanData()
+    return render_template('home.html',loans=loans)
 
 @app.route('/logout')
 def logout():
     logout_user()
     return redirect(url_for('go'))
+
+@app.route('/request',methods=['GET','POST'])
+def request_loan():
+    form = LoanForm()
+    if form.validate_on_submit():
+        deviceLoan = Loans(
+            faculty = form.faculty.data,
+            device = form.device.data,
+            is_located = form.is_located.data,
+            loan_date_in = form.loan_Date_In.data,
+            why = form.why.data
+        )
+        db.session.add(deviceLoan)
+        db.session.commit()
+        return redirect(url_for('home'))
+    return render_template('loan.html', form=form)
