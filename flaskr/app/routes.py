@@ -1,11 +1,11 @@
+from app import app
 
 from flask import render_template, redirect, url_for, request
-from app import app
 from app.forms import LoginForm, RegisterForm, ResetForm, LoanForm, FacultyForm
 from app.models import Users, Faculty, Department, Loaned_Devices
+
 from app import db
 from flask_login import login_user, logout_user, current_user, login_required
-#from app.forms import #RegisterForm
 
 def getAllLoanData():
     loans = db.session.query(Loaned_Devices.serialNumber, Loaned_Devices.barcode,Loaned_Devices.Equipment_Model,Loaned_Devices.Equipment_Type,Loaned_Devices.loan_in_date,Loaned_Devices.loan_date_out,Loaned_Devices.faculty_name)
@@ -40,6 +40,8 @@ def go():
         return redirect(url_for('home'))
     return render_template('login.html', form = form)
 
+
+    
 @app.route('/register', methods=['GET','POST'])
 def register():
     form = RegisterForm()
