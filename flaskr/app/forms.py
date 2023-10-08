@@ -34,9 +34,16 @@ class ResetForm(FlaskForm):
 
 #WE will need to readdress the loan form we want to start the login process first 
 class LoanForm(FlaskForm):
-   faculty = StringField('Faculty Name: ',validators=[DataRequired()])
-   device = StringField('Which device do you need? ',validators=[DataRequired()])
-   is_located = StringField('Device Location: ',validators=[DataRequired()])
-   loan_Date_In = DateField('When will this device be deployed? ',validators=[DataRequired()])
-   why = StringField('Why do you need this device? ',validators=[DataRequired()])
-   submit = SubmitField('Request Loan')
+   serial = IntegerField('Serial Number: ',validators=[DataRequired()])
+   barcode = IntegerField('Barcode: ',validators=[DataRequired()])
+   model = StringField('Equipment Model: ',validators=[DataRequired()])
+   type = StringField('Equipment Type: ',validators=[DataRequired()])
+   loan_in_date = DateField('When will this loan be due? ',validators=[DataRequired()])
+   loan_date_out = DateField('When was this loan taken out? ',validators=[DataRequired()])
+   faculty_name = StringField('Faculty Name: ',validators=[DataRequired()])
+   submit = SubmitField('Record Loan')
+
+class FacultyForm(FlaskForm):
+    name = StringField('Faculty Name: ',validators=[DataRequired()])
+    department_id = IntegerField('Department ID: ',validators=[DataRequired()])
+    submit = SubmitField('Submit')

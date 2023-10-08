@@ -7,24 +7,32 @@
         <form method="post">
             {{ form.hidden_tag() }}
             <p>
-                {{form.faculty.label}}
-                {{form.faculty}}
+                {{form.serial.label}}
+                {{form.serial}}
             </p>
             <p>
-                {{form.device.label}}
-                {{form.device}}
+                {{form.barcode.label}}
+                {{form.barcode}}
             </p>
             <p>
-                {{form.is_located.label}}
-                {{form.is_located}}
+                {{form.model.label}}
+                {{form.model}}
             </p>
             <p>
-                {{form.loan_Date_In.label}}
-                {{form.loan_Date_In}}
+                {{form.type.label}}
+                {{form.type}}
             </p>
             <p>
-                {{form.why.label}}
-                {{form.why}}
+                {{form.loan_in_date.label}}
+                {{form.loan_in_date}}
+            </p>
+            <p>
+                {{form.loan_date_out.label}}
+                {{form.loan_date_out}}
+            </p>
+            <p>
+                {{form.faculty_name.label}}
+                {{form.faculty_name}}
             </p>
             {{form.submit}}
         </form>
