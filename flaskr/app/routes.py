@@ -1,9 +1,23 @@
 from app import app
+
 from flask import render_template, redirect, url_for, request
-from app.forms import LoginForm, RegisterForm, ResetForm
-from app.models import Users
+from app.forms import LoginForm, RegisterForm, ResetForm, LoanForm, FacultyForm
+from app.models import Users, Faculty, Department, Loaned_Devices
+
 from app import db
 from flask_login import login_user, logout_user, current_user, login_required
+
+def getAllLoanData():
+    loans = db.session.query(Loaned_Devices.serialNumber, Loaned_Devices.barcode,Loaned_Devices.Equipment_Model,Loaned_Devices.Equipment_Type,Loaned_Devices.loan_in_date,Loaned_Devices.loan_date_out,Loaned_Devices.faculty_name)
+    return [{
+        'serial_number': serialNumber,
+        'barcode': barcode,
+        'equipment_model': equipment_model,
+        'equipment_type': equipment_type,
+        'return_date': return_date,
+        'borrow_date': borrow_date,
+        'faculty_name': faculty_name,
+    } for(serialNumber, barcode, equipment_model, equipment_type, return_date, borrow_date, faculty_name) in loans]
 
 @app.route('/', methods=['GET','POST'])
 def go():
@@ -56,9 +70,43 @@ def register():
 @login_required
 @app.route('/home')
 def home():
-    return render_template('home.html')
+    loans = getAllLoanData()
+    return render_template('home.html',loans=loans)
 
 @app.route('/logout')
 def logout():
     logout_user()
     return redirect(url_for('go'))
+
+@login_required
+@app.route('/request',methods=['GET','POST'])
+def request_loan():
+    form = LoanForm()
+    if form.validate_on_submit():
+        deviceLoan = Loaned_Devices(
+            serialNumber = form.serial.data,
+            barcode = form.barcode.data,
+            Equipment_Model = form.model.data,
+            Equipment_Type = form.type.data,
+            loan_in_date = form.loan_in_date.data,
+            loan_date_out = form.loan_date_out.data,
+            faculty_name = form.faculty_name.data
+        )
+        db.session.add(deviceLoan)
+        db.session.commit()
+        return redirect(url_for('home'))
+    return render_template('loan.html', form=form)
+
+@login_required
+@app.route('/faculty',methods=['GET','POST'])
+def faculty():
+    form = FacultyForm()
+    if form.validate_on_submit():
+        faculty = Faculty(
+            faculty_name = form.name.data,
+            Department_ID = form.department_id.data
+        )
+        db.session.add(faculty)
+        db.session.commit()
+        return redirect(url_for('home'))
+    return render_template('faculty.html', form=form)

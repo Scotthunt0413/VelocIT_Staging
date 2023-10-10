@@ -15,23 +15,44 @@
 
         {% if current_user.is_authenticated %}
         Hi {{ current_user.First_Name }}!
+        <a href="{{url_for('logout')}}">Logout user</a>
+        <a href="{{url_for('register')}}">Register New User</a>
+        <a href="{{url_for('faculty')}}">Add Faculty</a>
         {% endif %}
 
 
         <p>Here are all the loan requests and details:</p>
         <table>
             <tr>
-                <td>Faculty</td>
-                <td>Device</td>
-                <td>Where is the Device Located</td>
-                <td>When will this Device be deployed?</td>
-                <td>Why do you need this device?</td>
+                <td>Serial Number</td>
+                <td>Barcode</td>
+                <td>Equipment Model</td>
+                <td>Equipment Type</td>
+                <td>Loan Return Date</td>
+                <td>Date Loan was Taken Out</td>
+                <td>Faculty Name</td>
             
             </tr>
+            {% for loan in loans %}
+            <tr>
+                <td>{{loan.serial_number}}</td>
+                <td>{{loan.barcode}}</td>
+                <td>{{loan.equipment_model}}</td>
+                <td>{{loan.equipment_type}}</td>
+                <td>{{loan.return_date}}</td>
+                <td>{{loan.borrow_date}}</td>
+                <td>{{loan.faculty_name}}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="7">No Data</td>
+            </tr>
+            {% endfor %}
         </table>
 
-        <a href = "{{ url_for(request_loan)}}">Request Loan</a>        
-        <li><a href="/logout">logout</a></li>
+
+        <a href = "{{ url_for('request_loan')}}">Request Loan</a>
+
 
 
     </body>

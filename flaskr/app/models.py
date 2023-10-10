@@ -8,14 +8,14 @@ from sqlalchemy import Column, ForeignKey, Integer, Table
 class Users(UserMixin, db.Model):
     __tablename__ = 'Users'
     id = db.Column(db.Integer, primary_key=True)
-    user_name = db.Column(db.String(64), unique=True, nullable=False)
-    user_password = db.Column(db.String(256), unique=True, nullable=False)
-    Univ_ID = db.Column(db.String(32), unique=True, nullable=False)
-    Birth_Date = db.Column(db.String(256), unique=False, nullable=False)
+
     First_Name = db.Column(db.String(32), unique=False, nullable=False)
     Last_Name = db.Column(db.String(64), unique=True, nullable=False)
+    Univ_ID = db.Column(db.Integer, unique=True, nullable=False)
+    Birth_Date = db.Column(db.DATE, unique=False, nullable=False)
     email = db.Column(db.String(64), unique=True, nullable=False)
-    
+    user_name = db.Column(db.String(255), unique=True, nullable=False)
+    user_password = db.Column(db.String(255), unique=True, nullable=False)
 
     def set_password(self, user_password):
         # Store hashed (encrypted) password in database
@@ -23,18 +23,27 @@ class Users(UserMixin, db.Model):
     def check_password(self, user_password):
         return check_password_hash(self.user_password, user_password)
     
-class It_User(UserMixin, db.Model):
-    __tablename__ = 'It_User'
-    It_User_ID = db.Column(db.Integer, primary_key=True)
+class Faculty(db.Model):
+    __tablename__ = 'Faculty'
+    Faculty_ID = db.Column(db.Integer, unique=True,nullable=False, primary_key=True)
+    faculty_name = db.Column(db.String(255), unique=True,nullable=False)
+    Department_ID = db.Column(db.Integer, unique=True, nullable=False)
 
-class Loans(db.Model):
-    __tablename__ = 'Device Loans'
-    faculty = db.Column(db.String(255), unique=True, nullable=False, primary_key=True)
-    device = db.Column(db.String(255), unique=True, nullable=False)
-    is_located = db.Column(db.String(255), unique=True, nullable=False, primary_key=True)
-    loan_date_in = db.Column(db.String(8), unique=True, nullable=False, primary_key=True)
-    loan_date_out = db.Column(db.String(8),nullable=False)
-    why = db.Column(db.String(255), unique=True, nullable=False, primary_key=True)
+class Department(db.Model):
+    __tablename__ = 'Department'
+    Department_ID = db.Column(db.Integer, unique=True,nullable=False, primary_key=True)
+    Building = db.Column(db.String(255), unique=True,nullable=False)
+    Room_Number = db.Column(db.Integer, unique=True, nullable=False)
+
+class Loaned_Devices(db.Model):
+    __tablename__ = 'Loaned_Devices'
+    serialNumber = db.Column(db.Integer, unique=True, nullable=False, primary_key=True)
+    barcode = db.Column(db.Integer, unique=True, nullable=False)
+    Equipment_Model = db.Column(db.String(255), unique=True, nullable=False)
+    Equipment_Type = db.Column(db.String(255), unique=False, nullable=False)
+    loan_in_date = db.Column(db.DATE, unique=True, nullable=False)
+    loan_date_out = db.Column(db.DATE, unique=True, nullable=False)
+    faculty_name = db.Column(db.String(255), unique=True, nullable=True)
     
 @login.user_loader
 def load_user(id):

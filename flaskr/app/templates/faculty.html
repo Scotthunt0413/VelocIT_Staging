@@ -1,0 +1,19 @@
+<html>
+    <head>
+
+    </head>
+    <body>
+        <form method="post">
+            {{ form.hidden_tag() }}
+            <p>
+                {{form.name.label}}
+                {{form.name}}
+            </p>
+            <p>
+                {{form.department_id.label}}
+                {{form.department_id}}
+            </p>
+            {{form.submit}}
+        </form>
+    </body>
+</html>
