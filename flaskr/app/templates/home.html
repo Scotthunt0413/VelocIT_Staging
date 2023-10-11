@@ -13,6 +13,10 @@
     </head>
     <body>
 
+{% extends "base.html" %}
+
+{% block content %}
+<html>
         {% if current_user.is_authenticated %}
         Hi {{ current_user.First_Name }}!
         {% endif %}
@@ -31,10 +35,9 @@
             </tr>
         </table>
 
-        <a href = "{{ url_for(request_loan)}}">Request Loan</a>        
-        <li><a href="/logout">logout</a></li>
 
 
     </body>
     
 </html>
+{% endblock %}
