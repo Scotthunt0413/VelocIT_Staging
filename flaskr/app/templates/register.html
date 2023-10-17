@@ -1,45 +1,54 @@
 {% extends "base.html" %}
 
 {% block content %}
-<html>
+<!DOCTYPE html>
+<html lang="en">
 
-<head></head>
+<head>
+    <!-- Include Bootstrap CSS via CDN -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <title>Register</title>
+</head>
 
-<body>
-    <p>{{msg}}</p>
-    <p>Please Register Here</p>
-    <form method="post">
+<body class="container mt-5">
+    <p>{{ msg }}</p>
+    <h2>Please Register Here</h2>
+    <form method="post" class="needs-validation" novalidate>
         {{ form.hidden_tag() }}
-        <p>
-        {{form.user_name.label}}
-        {{form.user_name}}
-        </p>
-        <p>
-        {{form.user_password.label}}
-        {{form.user_password}}
-        </p>
-        <p>
-        {{form.First_Name.label}}
-        {{form.First_Name}}
-        </p>
-        <p>
-        {{form.Last_Name.label}}
-        {{form.Last_Name}}
-        </p>
-        <p>
-        {{form.email.label}}
-        {{form.email}}
-        </p>
-        <p>
-        {{form.Birth_Date.label}}
-        {{form.Birth_Date}}
-        </p>
-        <p>
-        {{form.Univ_ID.label}}
-        {{form.Univ_ID}}
-        </p>
-        {{form.submit}}
+        <div class="mb-3">
+            {{ form.user_name.label(class="form-label") }}
+            {{ form.user_name(class="form-control", required="required") }}
+        </div>
+        <div class="mb-3">
+            {{ form.user_password.label(class="form-label") }}
+            {{ form.user_password(class="form-control", required="required") }}
+        </div>
+        <div class="mb-3">
+            {{ form.First_Name.label(class="form-label") }}
+            {{ form.First_Name(class="form-control", required="required") }}
+        </div>
+        <div class="mb-3">
+            {{ form.Last_Name.label(class="form-label") }}
+            {{ form.Last_Name(class="form-control", required="required") }}
+        </div>
+        <div class="mb-3">
+            {{ form.email.label(class="form-label") }}
+            {{ form.email(class="form-control", required="required") }}
+        </div>
+        
+        <div class="mb-3">
+            {{ form.Birth_Date.label(class="form-label") }}
+            {{ form.Birth_Date(class="form-control", type="date", required="required") }}
+        </div>
+        <div class="mb-3">
+            {{ form.Univ_ID.label(class="form-label") }}
+            {{ form.Univ_ID(class="form-control", required="required") }}
+        </div>
+        {{ form.submit(class="btn btn-primary") }}
     </form>
+
+    <!-- Include Bootstrap JS and Popper.js via CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>
