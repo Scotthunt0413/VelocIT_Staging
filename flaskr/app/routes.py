@@ -90,7 +90,8 @@ def request_loan():
             Equipment_Type = form.type.data,
             loan_in_date = form.loan_in_date.data,
             loan_date_out = form.loan_date_out.data,
-            faculty_name = form.faculty_name.data
+            faculty_name = form.faculty_name.data,
+            faculty_email = form.faculty_email.data
         )
         db.session.add(deviceLoan)
         db.session.commit()

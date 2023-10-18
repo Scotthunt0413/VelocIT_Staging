@@ -37,13 +37,14 @@ class Department(db.Model):
 
 class Loaned_Devices(db.Model):
     __tablename__ = 'Loaned_Devices'
-    serialNumber = db.Column(db.Integer, unique=True, nullable=False, primary_key=True)
-    barcode = db.Column(db.Integer, unique=True, nullable=False)
+    serialNumber = db.Column(db.String(255), unique=True, nullable=False, primary_key=True)
+    barcode = db.Column(db.String(255), unique=True, nullable=False)
     Equipment_Model = db.Column(db.String(255), unique=True, nullable=False)
     Equipment_Type = db.Column(db.String(255), unique=False, nullable=False)
     loan_in_date = db.Column(db.DATE, unique=True, nullable=False)
     loan_date_out = db.Column(db.DATE, unique=True, nullable=False)
-    faculty_name = db.Column(db.String(255), unique=True, nullable=True)
+    faculty_name = db.Column(db.String(255), unique=False, nullable=False)
+    faculty_email = db.Column(db.String(255), unique=True, nullable = False)
     
 @login.user_loader
 def load_user(id):

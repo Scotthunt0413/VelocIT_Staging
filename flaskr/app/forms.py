@@ -34,13 +34,15 @@ class ResetForm(FlaskForm):
 
 #WE will need to readdress the loan form we want to start the login process first 
 class LoanForm(FlaskForm):
-   serial = IntegerField('Serial Number: ',validators=[DataRequired()])
-   barcode = IntegerField('Barcode: ',validators=[DataRequired()])
+ 
+   serial = StringField('Serial Number: ',validators=[DataRequired()])
+   barcode = StringField('Barcode: ',validators=[DataRequired()])
    model = StringField('Equipment Model: ',validators=[DataRequired()])
    type = StringField('Equipment Type: ',validators=[DataRequired()])
    loan_in_date = DateField('When will this loan be due? ',validators=[DataRequired()])
    loan_date_out = DateField('When was this loan taken out? ',validators=[DataRequired()])
    faculty_name = StringField('Faculty Name: ',validators=[DataRequired()])
+   faculty_email = EmailField('Assignee Email: ',validators=[DataRequired()])
    submit = SubmitField('Record Loan')
 
 class FacultyForm(FlaskForm):
