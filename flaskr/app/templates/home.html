@@ -17,9 +17,6 @@
     {% if current_user.is_authenticated %}
     <div class="alert alert-success" role="alert">
         Hi {{ current_user.First_Name }}!
-        <a href="{{url_for('logout')}}">Logout user</a>
-        <a href="{{url_for('register')}}">Register New User</a>
-        <a href="{{url_for('faculty')}}">Add Faculty</a>
         {% endif %}
 
 
