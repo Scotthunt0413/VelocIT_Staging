@@ -1,12 +1,11 @@
 from app import app
-
 from flask import render_template, redirect, url_for, request
 from app.forms import LoginForm, RegisterForm, ResetForm, LoanForm, FacultyForm
 from app.models import Users, Faculty, Department, Loaned_Devices
-
-from app import db
+from app import db, login
 from flask_login import login_user, logout_user, current_user, login_required
 
+login.login_view = "go"
 def getAllLoanData():
     loans = db.session.query(Loaned_Devices.serialNumber, Loaned_Devices.barcode,Loaned_Devices.Equipment_Model,Loaned_Devices.Equipment_Type,Loaned_Devices.loan_in_date,Loaned_Devices.loan_date_out,Loaned_Devices.faculty_name)
     return [{
@@ -67,19 +66,22 @@ def register():
             return redirect(url_for('home'))
     return render_template('register.html', form = form)
 
-@login_required
+
 @app.route('/home')
+@login_required
 def home():
     loans = getAllLoanData()
     return render_template('home.html',loans=loans)
 
 @app.route('/logout')
+@login_required
 def logout():
     logout_user()
     return redirect(url_for('go'))
 
-@login_required
+
 @app.route('/request',methods=['GET','POST'])
+@login_required
 def request_loan():
     form = LoanForm()
     if form.validate_on_submit():
@@ -98,8 +100,9 @@ def request_loan():
         return redirect(url_for('home'))
     return render_template('loan.html', form=form)
 
-@login_required
+
 @app.route('/faculty',methods=['GET','POST'])
+@login_required
 def faculty():
     form = FacultyForm()
     if form.validate_on_submit():
