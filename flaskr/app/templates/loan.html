@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block content %}
+<!DOCTYPE html>
+<html>
+    <head>
+
+    </head>
+    <body>
+        <p>Input Loan Details Here</p>
+        <form method="post">
+            {{ form.hidden_tag() }}
+            <p>
+                {{form.serial.label}}
+                {{form.serial}}
+            </p>
+            <p>
+                {{form.barcode.label}}
+                {{form.barcode}}
+            </p>
+            <p>
+                {{form.model.label}}
+                {{form.model}}
+            </p>
+            <p>
+                {{form.type.label}}
+                {{form.type}}
+            </p>
+            <p>
+                {{form.loan_in_date.label}}
+                {{form.loan_in_date}}
+            </p>
+            <p>
+                {{form.loan_date_out.label}}
+                {{form.loan_date_out}}
+            </p>
+            <p>
+                {{form.faculty_name.label}}
+                {{form.faculty_name}}
+            </p>
+            {{form.submit}}
+        </form>
+    </body>
+</html>
+{% endblock %}
