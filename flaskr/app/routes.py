@@ -1,11 +1,13 @@
 from app import app
-
-from flask import render_template, redirect, url_for, request
+from flask import flash, render_template, redirect, url_for, request,current_app
 from app.forms import LoginForm, RegisterForm, ResetForm, LoanForm, FacultyForm
 from app.models import Users, Faculty, Department, Loaned_Devices
-
 from app import db, login
 from flask_login import login_user, logout_user, current_user, login_required
+import requests
+
+
+
 login.login_view = "go"
 def getAllLoanData():
     loans = db.session.query(Loaned_Devices.serialNumber, Loaned_Devices.barcode,Loaned_Devices.Equipment_Model,Loaned_Devices.Equipment_Type,Loaned_Devices.loan_in_date,Loaned_Devices.loan_date_out,Loaned_Devices.faculty_name)
@@ -83,18 +85,65 @@ def logout():
 
 @app.route('/request',methods=['GET','POST'])
 @login_required
+def send_teams_webhook(data, html_message):
+    try:
+        teams_webhook_url = current_app.config['TEAMS_WEBHOOK_URL']
+
+        payload = {
+            "type" : "message", 
+            "attachments" : [
+                {
+                    "contentType" : "text/html",
+                    "content" : html_message
+                }
+            ]
+        }
+
+        headers = { 'Content-Type' : 'application/json'}
+
+        response = requests.post(teams_webhook_url,
+                                 json=payload,
+                                 headers=headers)
+
+        if response.status_code == 200:
+            return True
+        return False
+    except Exception as e:
+        return False
+
+
 def request_loan():
     form = LoanForm()
     if form.validate_on_submit():
+        with open('message.html' , 'r', encoding='utf-8') as file:
+            html_message = file.read()
+
+        data = {
+            'serialNumber' : form.serial.data,
+            'barcode' : form.barcode.data,
+            'Equipment_Model' : form.model.data,
+            'Equipment_Type' : form.type.data,
+            'loan_in_date' : form.loan_in_date.data,
+            'loan_date_out' : form.loan_date_out.data,
+            'faculty_name' : form.faculty_name.data
+        }
+
+        if send_teams_webhook(data, html_message):
+            flash('Loan Submitted Successfully Teams Notification Sent','success')
+        else:
+            flash('Loan Submitted Successfully Teams Notification Failed','warning')
+
+        
         deviceLoan = Loaned_Devices(
-            serialNumber = form.serial.data,
-            barcode = form.barcode.data,
-            Equipment_Model = form.model.data,
-            Equipment_Type = form.type.data,
-            loan_in_date = form.loan_in_date.data,
-            loan_date_out = form.loan_date_out.data,
-            faculty_name = form.faculty_name.data
+            serialNumber=data['serial'],
+            barcode=data['barcode'],
+            Equipment_Model=data['model'],
+            Equipment_Type=data['type'],
+            loan_in_date=data['loan_in_date'],
+            loan_date_out=data['loan_date_out'],
+            faculty_name=data['faculty_name']
         )
+
         db.session.add(deviceLoan)
         db.session.commit()
         return redirect(url_for('home'))
