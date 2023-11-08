@@ -1,11 +1,10 @@
 from app import app
-
 from flask import render_template, redirect, url_for, request
 from app.forms import LoginForm, RegisterForm, ResetForm, LoanForm, FacultyForm
 from app.models import Users, Faculty, Department, Loaned_Devices
-
 from app import db, login
 from flask_login import login_user, logout_user, current_user, login_required
+
 login.login_view = "go"
 def getAllLoanData():
     loans = db.session.query(Loaned_Devices.serialNumber, Loaned_Devices.barcode,Loaned_Devices.Equipment_Model,Loaned_Devices.Equipment_Type,Loaned_Devices.loan_in_date,Loaned_Devices.loan_date_out,Loaned_Devices.faculty_name)
@@ -93,7 +92,8 @@ def request_loan():
             Equipment_Type = form.type.data,
             loan_in_date = form.loan_in_date.data,
             loan_date_out = form.loan_date_out.data,
-            faculty_name = form.faculty_name.data
+            faculty_name = form.faculty_name.data,
+            faculty_email = form.faculty_email.data
         )
         db.session.add(deviceLoan)
         db.session.commit()
