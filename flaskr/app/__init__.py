@@ -29,6 +29,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = DB_CONFIG_STR
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"]= True
 app.config['SECRET_KEY'] = 'VelocIT'
 
+
 # Create database connection and associate it with the Flask application
 
 db = SQLAlchemy(app)

@@ -1,7 +1,8 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, IntegerField, PasswordField, SubmitField, TextAreaField, DateField, RadioField, RadioField, BooleanField, SelectField, SelectMultipleField,EmailField
+from wtforms import StringField, IntegerField, PasswordField, SubmitField, TextAreaField, DateField, RadioField, RadioField, BooleanField, SelectField, SelectMultipleField,EmailField,FileField
 from wtforms.validators import DataRequired, StopValidation
 from wtforms.widgets import CheckboxInput, ListWidget
+from flask_wtf.file import FileAllowed
 
 # This is the Registration form for the IT Department Users
 
@@ -49,3 +50,11 @@ class FacultyForm(FlaskForm):
     name = StringField('Faculty Name: ',validators=[DataRequired()])
     department_id = IntegerField('Department ID: ',validators=[DataRequired()])
     submit = SubmitField('Submit')
+
+
+class csvUploadForm(FlaskForm):
+    file = FileField('upload a CSV File',validators=[DataRequired(message="Please select a File: "),
+                    FileAllowed(['csv'], message="Only csv files are accepted"),])
+    
+    
+    submit = SubmitField('upload')

@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<head>
+    <title>CSV File Upload</title>
+</head>
+<body>
+    <h1>Upload a CSV File</h1>
+    
+    <form method="POST" action="/upload" enctype="multipart/form-data">
+        {{ form.csrf_token }}
+        
+        <div class="form-group">
+            {{ form.file.label }}
+            {{ form.file(placeholder="Select a CSV file") }}
+        </div>
+        
+        {{ form.submit(class="btn btn-primary") }}
+    </form>
+    
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <div class="alert alert-{{ messages[0].split(' ')[0] }}">
+        <ul>
+            {% for message in messages %}
+                <li>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+    {% endwith %}
+</body>
+</html>
+{% endblock %}

@@ -4,6 +4,12 @@ from app.forms import LoginForm, RegisterForm, ResetForm, LoanForm, FacultyForm
 from app.models import Users, Faculty, Department, Loaned_Devices
 from app import db, login
 from flask_login import login_user, logout_user, current_user, login_required
+import csv, os, sqlite3
+import pandas as pd
+
+app.config['UPLOAD_FOLDER'] = 'uploads'
+app.config['DATABASE'] = 'csv_data.db'
+
 
 login.login_view = "go"
 def getAllLoanData():
@@ -114,3 +120,47 @@ def faculty():
         db.session.commit()
         return redirect(url_for('home'))
     return render_template('faculty.html', form=form)
+
+
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() == 'csv'
+
+@app.route('/upload')
+def index():
+    return render_template('upload.html')
+
+@app.route('/upload', methods=['GET','POST'])
+def upload():
+    if 'file' not in request.files:
+        return redirect(request.url)
+    
+    file = request.files['file']
+
+    if file.filename == '':
+        return redirect(request.url)
+
+    if file and allowed_file(file.filename):
+        filename = file.filename
+        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+
+        # Parse the CSV file using pandas
+        csv_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        df = pd.read_csv(csv_path)
+
+        # Insert the DataFrame into the database
+        conn = sqlite3.connect(app.config['DATABASE'])
+        df.to_sql('csv_data', conn, if_exists='append', index=False)
+        conn.close()
+
+        return redirect(url_for('upload'))
+    return render_template('upload.html')
+
+@app.route('/show_csv')
+def show_csv():
+    conn = sqlite3.connect(app.config['DATABASE'])
+    cursor = conn.cursor()
+    cursor.execute('SELECT * FROM csv_data')
+    data = cursor.fetchall()
+    conn.close()
+    return render_template('upload.html', data=data)
