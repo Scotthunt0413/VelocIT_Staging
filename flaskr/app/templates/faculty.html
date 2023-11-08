@@ -1,19 +1,34 @@
+{% extends "base.html" %}
+{% block content %}
+<!DOCTYPE html>
 <html>
     <head>
-
     </head>
     <body>
-        <form method="post">
+        <form method="post" class="needs-validation" novalidate>
             {{ form.hidden_tag() }}
-            <p>
+            <div class="mb-3">
+                {{ form.name.label(class="form-label") }}
+                {{ form.name(class="form-control", required="required") }}
+            </div>
+            <div class="mb-3">
+                {{ form.department_id.label(class="form-label") }}
+                {{ form.department_id(class="form-control", required="required") }}
+            </div>
+            <!-- <p>
                 {{form.name.label}}
                 {{form.name}}
             </p>
             <p>
                 {{form.department_id.label}}
                 {{form.department_id}}
-            </p>
-            {{form.submit}}
+            </p> -->
+
+            
+            {{ form.submit(class="btn btn-primary") }}
         </form>
+        <!-- Include Bootstrap JS and Popper.js via CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     </body>
 </html>
+{% endblock %}
