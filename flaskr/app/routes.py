@@ -5,6 +5,7 @@ from app.models import Users, Faculty, Department, Loaned_Devices
 from app import db, login
 from flask_login import login_user, logout_user, current_user, login_required
 import requests
+from sqlalchemy.exc import IntegrityError
 
 
 
@@ -48,27 +49,34 @@ def go():
 def register():
     form = RegisterForm()
     if form.validate_on_submit():
-        user = db.session.query(Users).filter_by(user_name=form.user_name.data).first()
-        if user is not None:
-            return render_template('register.html',
-                form=form, msg='Username is already taken')
-        if user is None:
-            user = Users(
-                user_name = form.user_name.data,
-                First_Name = form.First_Name.data,
-                Last_Name = form.Last_Name.data,
-                Birth_Date = form.Birth_Date.data,
-                Univ_ID = form.Univ_ID.data,
-                email = form.email.data
-            )
-            user.set_password(form.user_password.data)
-            db.session.add(user)
-            db.session.commit()
-            login_user(user)
-            msg = 'Registraton successful'
-            return redirect(url_for('home'))
-    return render_template('register.html', form = form)
+        try:
+            user = db.session.query(Users).filter_by(user_name=form.user_name.data).first()
+            if user is not None:
+                return render_template('register.html', form=form, msg='Username is already taken')
 
+            if user is None:
+                user = Users(
+                    user_name=form.user_name.data,
+                    First_Name=form.First_Name.data,
+                    Last_Name=form.Last_Name.data,
+                    Birth_Date=form.Birth_Date.data,
+                    Univ_ID=form.Univ_ID.data,
+                    email=form.email.data
+                )
+                user.set_password(form.user_password.data)
+                db.session.add(user)
+                db.session.commit()
+                login_user(user)
+                flash('Registration successful', 'success')
+            return redirect(url_for('go'))  # Redirect to the login page ('go' route)
+        
+        except IntegrityError as e:
+            db.session.rollback()
+            if "UNIQUE constraint failed" in str(e):
+                flash('Error: This username or University ID is already in use.', 'danger')
+            else:
+                flash('An unexpected error occurred. Please try again.', 'danger')
+    return render_template('register.html', form=form)
 
 @app.route('/home')
 @login_required
