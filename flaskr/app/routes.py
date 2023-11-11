@@ -3,7 +3,8 @@ from app import app
 from flask import render_template, redirect, url_for, request
 from app.forms import LoginForm, RegisterForm, ResetForm, LoanForm, FacultyForm
 from app.models import Users, Faculty, Department, Loaned_Devices
-
+import datetime
+import sys
 from app import db, login
 from flask_login import login_user, logout_user, current_user, login_required
 login.login_view = "go"
@@ -19,8 +20,38 @@ def getAllLoanData():
         'faculty_name': faculty_name,
     } for(serialNumber, barcode, equipment_model, equipment_type, return_date, borrow_date, faculty_name) in loans]
 
+def getSomeLoanData():
+    data = db.session.query(Loaned_Devices.barcode)
+    return [{
+        'barcode': barcode
+    } for(barcode) in data]
+
+def getDates():
+    status = []
+    today = datetime.date.today()
+    devices = db.session.query(Loaned_Devices).all()
+    for device in devices:
+        date = device.loan_date_out
+        if date > today:
+            status.append("overdue")
+        else:
+            status.append("not due")
+    return [{
+        'status': status
+    }for(status) in status]
+
+def combine():
+    barcodes = getSomeLoanData()
+    status = getDates()
+    newlist = barcodes + status
+    print(newlist[0].values())
+    return newlist
+
 @app.route('/', methods=['GET','POST'])
 def go():
+    barcodes = getSomeLoanData()
+    allstatus = getDates()
+    data = combine()
     #Redirect authenticated users to homepage
     if current_user.is_authenticated:
         return(redirect(url_for('home')))
@@ -37,8 +68,9 @@ def go():
             form.password.data = ''
             return render_template('login.html', form=form, msg=f"Incorrect Password")
         login_user(user)
+        
         return redirect(url_for('home'))
-    return render_template('login.html', form = form)
+    return render_template('login.html', form = form, allstatus = allstatus, barcodes = barcodes)
 
 
     

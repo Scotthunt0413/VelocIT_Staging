@@ -29,7 +29,21 @@
             </form>
         </div>
     </div>
-
+    <hr>
+    <table class="table table-bordered">
+        <tr>
+            <td>Barcode</td>
+            <td>Loan Status</td>
+        </tr>
+        {% for barcode in barcodes %}
+        <tr>
+            <td>{{barcode.barcode}}</td>
+        {% endfor %}
+        {% for status in allstatus %}
+            <td>{{status.status}}</td>
+        </tr>
+        {% endfor %}
+    </table>
     <!-- Include Bootstrap JS and Popper.js via CDN -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
