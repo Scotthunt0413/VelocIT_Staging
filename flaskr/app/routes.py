@@ -1,6 +1,6 @@
 from app import app
 from flask import flash, render_template, redirect, url_for, request,current_app
-from app.forms import LoginForm, RegisterForm, ResetForm, LoanForm, FacultyForm
+from app.forms import LoginForm, RegisterForm, ResetForm, LoanForm
 from app.models import Users, Faculty, Department, Loaned_Devices
 import datetime
 import sys
