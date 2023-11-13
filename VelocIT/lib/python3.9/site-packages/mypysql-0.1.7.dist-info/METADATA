@@ -1,0 +1,19 @@
+Metadata-Version: 2.1
+Name: mypysql
+Version: 0.1.7
+Summary: Load data to a MySQL database
+Home-page: https://github.com/chw3k5/mypysql
+Author: Caleb Wheeler
+Author-email: chw3k5@gmail.com
+License: UNKNOWN
+Platform: UNKNOWN
+Requires-Python: >3.7
+License-File: LICENSE.md
+Requires-Dist: mysql-connector-python
+Requires-Dist: pymysql
+Requires-Dist: pandas
+Requires-Dist: sqlalchemy
+Requires-Dist: Unidecode
+
+UNKNOWN
+
