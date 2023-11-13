@@ -15,7 +15,6 @@ login.login_view = "go"
 def getAllLoanData():
     loans = db.session.query(Loaned_Devices.barcode,Loaned_Devices.Equipment_Model,Loaned_Devices.Equipment_Type,Loaned_Devices.return_date,Loaned_Devices.takeout_date,Loaned_Devices.faculty_name,Loaned_Devices.loan_status)
     return [{
-        'serial_number': serialNumber,
         'barcode': barcode,
         'equipment_model': equipment_model,
         'equipment_type': equipment_type,
@@ -60,35 +59,43 @@ def go():
     return render_template('login.html', form = form, data = data)
 
 
-    
-@app.route('/register', methods=['GET','POST'])
+
+
+@app.route('/register', methods=['GET', 'POST'])
 def register():
     form = RegisterForm()
+
+    # Fetch existing user information from the database
+    existing_users = Users.query.all()
+    existing_usernames = [user.user_name for user in existing_users]
+    existing_emails = [user.email for user in existing_users]
+    existing_univ_ids = [user.Univ_ID for user in existing_users]
+
     if form.validate_on_submit():
         try:
             existing_user = Users.query.filter(
                 (Users.user_name == form.user_name.data) | (Users.Univ_ID == form.Univ_ID.data) | (Users.email == form.email.data)
             ).first()
-            
+
             if existing_user:
                 flash("ERROR: Please use a different ID, Email, or Username")
                 return render_template('register.html', form=form, existing_usernames=existing_usernames, existing_emails=existing_emails, existing_univ_ids=existing_univ_ids)
-            
+
             user = Users.query.filter_by(user_name=form.user_name.data).first()
 
             if existing_user:
                 flash("ERROR: Please use a different ID, Email, or Username")
                 return render_template('register.html', form=form, existing_usernames=existing_usernames, existing_emails=existing_emails, existing_univ_ids=existing_univ_ids)
-            
+
             if user:
                 return render_template('register.html', form=form, msg='Username is already taken', existing_usernames=existing_usernames, existing_emails=existing_emails, existing_univ_ids=existing_univ_ids)
-    
+
             if form.email.data in existing_emails:
                 return render_template('register.html', form=form, msg='Email is already taken', existing_usernames=existing_usernames, existing_emails=existing_emails, existing_univ_ids=existing_univ_ids)
 
             if form.Univ_ID.data in existing_univ_ids:
                 return render_template('register.html', form=form, msg='University ID is already taken', existing_usernames=existing_usernames, existing_emails=existing_emails, existing_univ_ids=existing_univ_ids)
-    
+
             user = Users(
                 user_name=form.user_name.data,
                 First_Name=form.First_Name.data,
@@ -97,7 +104,7 @@ def register():
                 Univ_ID=form.Univ_ID.data,
                 email=form.email.data
             )
-    
+
             user.set_password(form.user_password.data)
             db.session.add(user)
             db.session.commit()
@@ -105,17 +112,34 @@ def register():
             flash('Registration successful', 'success')
 
             return redirect(url_for('go')) 
-    
+
         except IntegrityError as e:
             db.session.rollback()
-            error_message = str(e)
-    
-            if "UNIQUE constraint failed" in error_message:
+            if "UNIQUE constraint failed" in str(e):
                 flash('Error: This username or University ID is already in use.', 'danger')
             else:
-                flash(f'An unexpected error occurred: {error_message}', 'danger')
-                
-    return render_template('register.html', form=form, existing_usernames=existing_usernames, existing_emails=existing_emails, existing_univ_ids=existing_univ_ids)
+                flash('An unexpected error occurred. Please try again.', 'danger')
+    return render_template('register.html', form=form)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -134,10 +158,6 @@ def logout():
 
 
 @app.route('/request',methods=['GET','POST'])
-@login_required
-def send_teams_webhook(data, html_message):
-    try:
-        teams_webhook_url = current_app.config['TEAMS_WEBHOOK_URL']
 def send_teams_webhook(data, html_message):
     try:
         teams_webhook_url = current_app.config['TEAMS_WEBHOOK_URL']
