@@ -35,12 +35,10 @@
             <td>Barcode</td>
             <td>Loan Status</td>
         </tr>
-        {% for barcode in barcodes %}
+        {% for device in data %}
         <tr>
-            <td>{{barcode.barcode}}</td>
-        {% endfor %}
-        {% for status in allstatus %}
-            <td>{{status.status}}</td>
+            <td>{{device.barcode}}</td>
+            <td>{{device.loan_status}}</td>
         </tr>
         {% endfor %}
     </table>
