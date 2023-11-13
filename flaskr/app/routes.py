@@ -1,6 +1,6 @@
+from MySQLdb import IntegrityError
 from app import app
-
-from flask import render_template, redirect, url_for, request
+from flask import current_app, render_template, redirect, url_for, request ,flash
 from app.forms import LoginForm, RegisterForm, ResetForm, LoanForm
 from app.models import Users, Faculty, Department, Loaned_Devices
 import datetime
@@ -8,7 +8,7 @@ import sys
 from app import db, login
 from flask_login import login_user, logout_user, current_user, login_required
 import requests
-
+from sqlalchemy.exc import IntegrityError as e
 
 
 login.login_view = "go"
@@ -21,7 +21,20 @@ def getAllLoanData():
         'return_date': return_date,
         'borrow_date': borrow_date,
         'faculty_name': faculty_name,
-    } for(serialNumber, barcode, equipment_model, equipment_type, return_date, borrow_date, faculty_name) in loans]
+        'loan_status' : loan_status
+    } for(barcode, equipment_model, equipment_type, return_date, borrow_date, faculty_name, loan_status) in loans]
+
+
+def getSomeLoanData():
+    data = db.session.query(Loaned_Devices.barcode, Loaned_Devices.loan_status)
+    return [{
+        'barcode' : barcode,
+        'loan_status': loan_status
+    } for(barcode,loan_status) in data]
+
+
+
+
 
 @app.route('/', methods=['GET','POST'])
 def go():
@@ -105,17 +118,17 @@ def register():
             flash('Registration successful', 'success')
 
             return redirect(url_for('go')) 
-        
+    
         except IntegrityError as e:
             db.session.rollback()
-            if "UNIQUE constraint failed" in str(e):
+            error_message = str(e)
+    
+            if "UNIQUE constraint failed" in error_message:
                 flash('Error: This username or University ID is already in use.', 'danger')
             else:
-                flash('An unexpected error occurred. Please try again.', 'danger')
-    return render_template('register.html', form=form)
-
-
-
+                flash(f'An unexpected error occurred: {error_message}', 'danger')
+                
+    return render_template('register.html', form=form, existing_usernames=existing_usernames, existing_emails=existing_emails, existing_univ_ids=existing_univ_ids)
 
 
 
@@ -124,7 +137,6 @@ def register():
 @login_required
 def home():
     loans = getAllLoanData()
-    setDates()
     return render_template('home.html',loans=loans)
 
 
@@ -178,7 +190,6 @@ def request_loan():
             html_message = file.read()
 
         data = {
-            'serialNumber' : form.serial.data,
             'barcode' : form.barcode.data,
             'Equipment_Model' : form.model.data,
             'Equipment_Type' : form.type.data,
@@ -194,7 +205,6 @@ def request_loan():
 
         
         deviceLoan = Loaned_Devices(
-            serialNumber=data['serial'],
             barcode=data['barcode'],
             Equipment_Model=data['model'],
             Equipment_Type=data['type'],
