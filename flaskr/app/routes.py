@@ -1,7 +1,7 @@
 from app import app
 
 from flask import render_template, redirect, url_for, request
-from app.forms import LoginForm, RegisterForm, ResetForm, LoanForm, FacultyForm
+from app.forms import LoginForm, RegisterForm, ResetForm, LoanForm
 from app.models import Users, Faculty, Department, Loaned_Devices
 import datetime
 import sys
@@ -9,7 +9,7 @@ from app import db, login
 from flask_login import login_user, logout_user, current_user, login_required
 login.login_view = "go"
 def getAllLoanData():
-    loans = db.session.query(Loaned_Devices.serialNumber, Loaned_Devices.barcode,Loaned_Devices.Equipment_Model,Loaned_Devices.Equipment_Type,Loaned_Devices.loan_in_date,Loaned_Devices.loan_date_out,Loaned_Devices.faculty_name,Loaned_Devices.loan_status)
+    loans = db.session.query(Loaned_Devices.serialNumber, Loaned_Devices.barcode,Loaned_Devices.Equipment_Model,Loaned_Devices.Equipment_Type,Loaned_Devices.return_date,Loaned_Devices.takeout_date,Loaned_Devices.faculty_name,Loaned_Devices.loan_status)
     return [{
         'serial_number': serialNumber,
         'barcode': barcode,
@@ -32,13 +32,13 @@ def setDates():
     today = datetime.date.today()
     devices = db.session.query(Loaned_Devices).all()
     for device in devices:
-        date = device.loan_date_out
+        date = device.return_date
         barcode = device.barcode
         if date < today:
-            db.session.query(Loaned_Devices).filter(Loaned_Devices.barcode == barcode).update({Loaned_Devices.loan_status: "overdue"})
+            db.session.query(Loaned_Devices).filter(Loaned_Devices.barcode == barcode).update({Loaned_Devices.loan_status: "Overdue"})
             db.session.commit()
         else:
-            db.session.query(Loaned_Devices).filter(Loaned_Devices.barcode == barcode).update({Loaned_Devices.loan_status: "not due"})
+            db.session.query(Loaned_Devices).filter(Loaned_Devices.barcode == barcode).update({Loaned_Devices.loan_status: "Not Due"})
             db.session.commit()
 
 @app.route('/', methods=['GET','POST'])
@@ -124,18 +124,3 @@ def request_loan():
         setDates()
         return redirect(url_for('home'))
     return render_template('loan.html', form=form)
-
-
-@app.route('/faculty',methods=['GET','POST'])
-@login_required
-def faculty():
-    form = FacultyForm()
-    if form.validate_on_submit():
-        faculty = Faculty(
-            faculty_name = form.name.data,
-            Department_ID = form.department_id.data
-        )
-        db.session.add(faculty)
-        db.session.commit()
-        return redirect(url_for('home'))
-    return render_template('faculty.html', form=form)

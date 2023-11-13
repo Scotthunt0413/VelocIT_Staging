@@ -41,8 +41,8 @@ class Loaned_Devices(db.Model):
     barcode = db.Column(db.Integer, unique=True, nullable=False)
     Equipment_Model = db.Column(db.String(255), nullable=False)
     Equipment_Type = db.Column(db.String(255), nullable=False)
-    loan_in_date = db.Column(db.DATE, unique=False, nullable=False)
-    loan_date_out = db.Column(db.DATE, unique=False, nullable=False)
+    return_date = db.Column(db.DATE, unique=False, nullable=False)
+    takeout_date = db.Column(db.DATE, unique=False, nullable=False)
     faculty_name = db.Column(db.String(255), nullable=True)
     loan_status = db.Column(db.String(255),nullable=True)
     
