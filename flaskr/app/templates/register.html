@@ -1,7 +1,6 @@
 {% extends "base.html" %}
+
 {% block content %}
-
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -18,21 +17,17 @@
             <div class="card login-card">
                 <div class="card-body">
                     <h2 class="text-center mb-4">Sign-up</h2>
+
                     <form method="post" class="needs-validation" novalidate>
-                        {{ form.hidden_tag() }}       
+                        {{ form.hidden_tag() }}
+                        
                         <div class="mb-3">
                             {{ form.user_name.label(class="form-label") }}
-                            {{ form.user_name(class="form-control" ~ (' is-invalid' if form.user_name.errors or form.user_name.data in existing_usernames else ''), required="required") }}       
+                            {{ form.user_name(class="form-control" ~ ' is-invalid' if form.user_name.errors else '', required="required") }}
                             {% for error in form.user_name.errors %}
-                                <div class="invalid-feedback">{{ error }}</div>
+                                <div class="invalid-feedback">Username is required.</div>
                             {% endfor %}
-                            
-                            {% if form.user_name.data in existing_usernames %}
-                                <div class="invalid-feedback">This username is already taken. Please choose a different one.</div>
-                            {% endif %}
-                        </div>                    
-
-
+                        </div>                        
 
                         <div class="mb-3">
                             {{ form.user_password.label(class="form-label") }}
@@ -41,7 +36,7 @@
                                 <div class="invalid-feedback">Password is required.</div>
                             {% endfor %}
                         </div>
-            
+
                         <div class="mb-3">
                             {{ form.First_Name.label(class="form-label") }}
                             {{ form.First_Name(class="form-control" ~ ' is-invalid' if form.First_Name.errors else '', required="required") }}
@@ -57,15 +52,10 @@
 
                         <div class="mb-3">
                             {{ form.email.label(class="form-label") }}
-                            {{ form.email(class="form-control" ~ (' is-invalid' if form.email.errors or form.email.data in existing_emails else ''), required="required") }}
-                            
+                            {{ form.email(class="form-control" ~ ' is-invalid' if form.email.errors else '', required="required") }}
                             {% for error in form.email.errors %}
-                                <div class="invalid-feedback">{{ error }}</div>
+                                <div class="invalid-feedback">Email is required.</div>
                             {% endfor %}
-                        
-                            {% if form.email.data in existing_emails %}
-                                <div class="invalid-feedback">This email is already associated to an account. choose a different one.</div>
-                            {% endif %}
                         </div>
 
                                 <div class="mb-3">
@@ -75,15 +65,10 @@
 
                         <div class="mb-3">
                             {{ form.Univ_ID.label(class="form-label") }}
-                            {{ form.Univ_ID(class="form-control" ~ (' is-invalid' if form.Univ_ID.errors or form.Univ_ID.data in existing_univ_ids else ''), required="required") }}
-                        
+                            {{ form.Univ_ID(class="form-control" ~ ' is-invalid' if form.Univ_ID.errors else '', required="required") }}
                             {% for error in form.Univ_ID.errors %}
-                                <div class="invalid-feedback">{{ error }}</div>
+                                <div class="invalid-feedback">University ID is required.</div>
                             {% endfor %}
-                        
-                            {% if form.Univ_ID.data in existing_univ_ids %}
-                                <div class="invalid-feedback">This University ID is already associated to an account. Please use a different one.</div>
-                            {% endif %}
                         </div>
                         {{ form.submit(class="btn btn-primary w-100") }}
                     </form>

@@ -15,6 +15,7 @@ login.login_view = "go"
 def getAllLoanData():
     loans = db.session.query(Loaned_Devices.barcode,Loaned_Devices.Equipment_Model,Loaned_Devices.Equipment_Type,Loaned_Devices.return_date,Loaned_Devices.takeout_date,Loaned_Devices.faculty_name,Loaned_Devices.loan_status)
     return [{
+        'serial_number': serialNumber,
         'barcode': barcode,
         'equipment_model': equipment_model,
         'equipment_type': equipment_type,
@@ -59,24 +60,10 @@ def go():
     return render_template('login.html', form = form, data = data)
 
 
-
-
-
-
-
-
-
-
-@app.route('/register', methods=['GET', 'POST'])
+    
+@app.route('/register', methods=['GET','POST'])
 def register():
     form = RegisterForm()
-
-    # Fetch existing user information from the database
-    existing_users = Users.query.all()
-    existing_usernames = [user.user_name for user in existing_users]
-    existing_emails = [user.email for user in existing_users]
-    existing_univ_ids = [user.Univ_ID for user in existing_users]
-
     if form.validate_on_submit():
         try:
             existing_user = Users.query.filter(
@@ -139,10 +126,6 @@ def home():
     loans = getAllLoanData()
     return render_template('home.html',loans=loans)
 
-
-
-
-
 @app.route('/logout')
 @login_required
 def logout():
@@ -150,16 +133,30 @@ def logout():
     return redirect(url_for('go'))
 
 
-
-
-
-
-@app.route('/loans', methods=['GET', 'POST'])
+@app.route('/request',methods=['GET','POST'])
 @login_required
 def send_teams_webhook(data, html_message):
     try:
         teams_webhook_url = current_app.config['TEAMS_WEBHOOK_URL']
+def send_teams_webhook(data, html_message):
+    try:
+        teams_webhook_url = current_app.config['TEAMS_WEBHOOK_URL']
 
+        payload = {
+            "type" : "message", 
+            "attachments" : [
+                {
+                    "contentType" : "text/html",
+                    "content" : html_message
+                }
+            ]
+        }
+
+        headers = { 'Content-Type' : 'application/json'}
+
+        response = requests.post(teams_webhook_url,
+                                 json=payload,
+                                 headers=headers)
         payload = {
             "type" : "message", 
             "attachments" : [

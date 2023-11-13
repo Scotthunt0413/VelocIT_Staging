@@ -3,7 +3,6 @@ from dotenv import load_dotenv
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_bootstrap import Bootstrap
-import os
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'VelocIT'
@@ -20,6 +19,7 @@ IP = environ.get('MYSQL_IP')
 USERNAME = environ.get('MYSQL_USERNAME')
 PASSWORD = environ.get('MYSQL_PASSWORD')
 DB_NAME = environ.get('MYSQL_DBNAME')
+TEAMS_WEBHOOK_URL = environ.get('TEAMS_WEBHOOK_URL')
 TEAMS_WEBHOOK_URL = environ.get('TEAMS_WEBHOOK_URL')
 
 # Specify the connection parameters/credentials for the database
