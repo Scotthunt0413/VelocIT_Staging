@@ -30,6 +30,7 @@
                 <td>Loan Return Date</td>
                 <td>Date Loan was Taken Out</td>
                 <td>Faculty Name</td>
+                <td>Loan Status</td>
             
             </tr>
             {% for loan in loans %}
@@ -41,6 +42,7 @@
                 <td>{{loan.return_date}}</td>
                 <td>{{loan.borrow_date}}</td>
                 <td>{{loan.faculty_name}}</td>
+                <td>{{loan.loan_status}}</td>
             </tr>
             {% else %}
             <tr>

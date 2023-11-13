@@ -41,8 +41,3 @@ class LoanForm(FlaskForm):
    loan_date_out = DateField('When was this loan taken out? ',validators=[DataRequired()])
    faculty_name = StringField('Faculty Name: ',validators=[DataRequired()])
    submit = SubmitField('Record Loan')
-
-class FacultyForm(FlaskForm):
-    name = StringField('Faculty Name: ',validators=[DataRequired()])
-    department_id = IntegerField('Department ID: ',validators=[DataRequired()])
-    submit = SubmitField('Submit')

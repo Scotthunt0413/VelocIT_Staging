@@ -1,15 +1,19 @@
 from app import app
-from flask import flash, render_template, redirect, url_for, request,current_app
-from app.forms import LoginForm, RegisterForm, ResetForm, LoanForm, FacultyForm
+
+from flask import render_template, redirect, url_for, request
+from app.forms import LoginForm, RegisterForm, ResetForm, LoanForm
 from app.models import Users, Faculty, Department, Loaned_Devices
+import datetime
+import sys
 from app import db, login
 from flask_login import login_user, logout_user, current_user, login_required
-import requests,os
-from sqlalchemy.exc import IntegrityError
+import requests
+
+
 
 login.login_view = "go"
 def getAllLoanData():
-    loans = db.session.query(Loaned_Devices.barcode,Loaned_Devices.Equipment_Model,Loaned_Devices.Equipment_Type,Loaned_Devices.loan_in_date,Loaned_Devices.loan_date_out,Loaned_Devices.faculty_name)
+    loans = db.session.query(Loaned_Devices.barcode,Loaned_Devices.Equipment_Model,Loaned_Devices.Equipment_Type,Loaned_Devices.return_date,Loaned_Devices.takeout_date,Loaned_Devices.faculty_name,Loaned_Devices.loan_status)
     return [{
         'barcode': barcode,
         'equipment_model': equipment_model,
@@ -18,12 +22,10 @@ def getAllLoanData():
         'borrow_date': borrow_date,
         'faculty_name': faculty_name,
     } for(serialNumber, barcode, equipment_model, equipment_type, return_date, borrow_date, faculty_name) in loans]
-    
-    
-
 
 @app.route('/', methods=['GET','POST'])
 def go():
+    data = getSomeLoanData()
     #Redirect authenticated users to homepage
     if current_user.is_authenticated:
         return(redirect(url_for('home')))
@@ -41,7 +43,7 @@ def go():
             return render_template('login.html', form=form, msg=f"Incorrect Password")
         login_user(user)
         return redirect(url_for('home'))
-    return render_template('login.html', form = form)
+    return render_template('login.html', form = form, data = data)
 
 
 
@@ -122,6 +124,7 @@ def register():
 @login_required
 def home():
     loans = getAllLoanData()
+    setDates()
     return render_template('home.html',loans=loans)
 
 
@@ -141,84 +144,69 @@ def logout():
 
 @app.route('/loans', methods=['GET', 'POST'])
 @login_required
+def send_teams_webhook(data, html_message):
+    try:
+        teams_webhook_url = current_app.config['TEAMS_WEBHOOK_URL']
 
-
-
-def loan_manager():
-    form = LoanForm()
-    
-    if form.validate_on_submit():
-        try:
-            teams_webhook_url = current_app.config['TEAMS_WEBHOOK_URL']
-            
-            data = {'Barcode': form.barcode.data,
-                    'Equipment_Model':form.model.data,
-                    'Equipment_Type': form.type.data,
-                    'Loan_in_dat': form.loan_in_date.data,
-                    'loan_date_out': form.loan_date_out.data,
-                    'faculty_name': form.faculty_name.data   
-            }
-            
-            
-            file_path = os.path.join('templates', 'hookmsg.html')
-            with open(file_path, 'r', encoding='utf-8') as file:
-                html_message = file.read()
-
-            payload = {
-                
-                "type": "message",
-                "attachments": [
-                    {                    
-                        "contentType": "text/html",
-                        "content": html_message
-                        }
-                    ]
+        payload = {
+            "type" : "message", 
+            "attachments" : [
+                {
+                    "contentType" : "text/html",
+                    "content" : html_message
                 }
-            
-            
-            headers = {'Content-Type': 'application/json'}
-            response = requests.post(teams_webhook_url, json=payload, headers=headers)
+            ]
+        }
 
-            if response.status_code == 200:
-                current_app.logger.info("Teams webhook sent successfully!")
-            
-            else:
-                current_app.logger.error(f"Failed to send Teams webhook. Status code: {response.status_code}")
+        headers = { 'Content-Type' : 'application/json'}
 
-            deviceLoan = Loaned_Devices(**data)
-            db.session.add(deviceLoan)
-            db.session.commit()
-            
-            flash("Loan request processed successfully", "success")
-            return redirect(url_for('home'))
+        response = requests.post(teams_webhook_url,
+                                 json=payload,
+                                 headers=headers)
 
-        except Exception as e:
-            current_app.logger.error(f"An error occurred: {e}")
-            print(f"An error occurred: {e}")  # Add this line for debugging
-            flash("Failed to process the loan request", "danger")
+        if response.status_code == 200:
+            return True
+        return False
+    except Exception as e:
+        return False
 
+
+def request_loan():
+    form = LoanForm()
+    if form.validate_on_submit():
+        with open('message.html' , 'r', encoding='utf-8') as file:
+            html_message = file.read()
+
+        data = {
+            'serialNumber' : form.serial.data,
+            'barcode' : form.barcode.data,
+            'Equipment_Model' : form.model.data,
+            'Equipment_Type' : form.type.data,
+            'loan_in_date' : form.loan_in_date.data,
+            'loan_date_out' : form.loan_date_out.data,
+            'faculty_name' : form.faculty_name.data
+        }
+
+        if send_teams_webhook(data, html_message):
+            flash('Loan Submitted Successfully Teams Notification Sent','success')
+        else:
+            flash('Loan Submitted Successfully Teams Notification Failed','warning')
+
+        
+        deviceLoan = Loaned_Devices(
+            serialNumber=data['serial'],
+            barcode=data['barcode'],
+            Equipment_Model=data['model'],
+            Equipment_Type=data['type'],
+            loan_in_date=data['loan_in_date'],
+            loan_date_out=data['loan_date_out'],
+            faculty_name=data['faculty_name']
+        )
+
+        db.session.add(deviceLoan)
+        db.session.commit()
+        return redirect(url_for('home'))
     return render_template('loan.html', form=form)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 @app.route('/faculty',methods=['GET','POST'])
