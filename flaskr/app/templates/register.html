@@ -19,7 +19,10 @@
                 <div class="card-body">
                     <h2 class="text-center mb-4">Sign-up</h2>
                     <form method="post" class="needs-validation" novalidate>
-                        {{ form.hidden_tag() }}       
+                        {{ form.hidden_tag() }}
+                        
+                        <!-- BRIANNY DO NOT CHANGE THESE-->
+
                         <div class="mb-3">
                             {{ form.user_name.label(class="form-label") }}
                             {{ form.user_name(class="form-control" ~ (' is-invalid' if form.user_name.errors or form.user_name.data in existing_usernames else ''), required="required") }}       
@@ -31,8 +34,6 @@
                                 <div class="invalid-feedback">This username is already taken. Please choose a different one.</div>
                             {% endif %}
                         </div>                    
-
-
 
                         <div class="mb-3">
                             {{ form.user_password.label(class="form-label") }}
