@@ -8,7 +8,8 @@
     <title>Sign-up</title>
     <!-- Add Bootstrap CSS via CDN -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="static/register.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='register.css') }}">
+    <title>Register</title>
 </head>
 <body class="container mt-5">
     <p>{{ msg }}</p>
@@ -49,13 +50,10 @@
                             {% endfor %}
                         </div>
 
-                        <div class="mb-3">
-                            {{ form.Last_Name.label(class="form-label") }}
-                            {{ form.Last_Name(class="form-control" ~ ' is-invalid' if form.Last_Name.errors else '', required="required") }}
-                            {% for error in form.Last_Name.errors %}
-                                <div class="invalid-feedback">Last Name is required.</div>
-                            {% endfor %}
-                        </div>
+                                <div class="mb-3">
+                                    {{ form.Last_Name.label(class="form-label") }}
+                                    {{ form.Last_Name(class="form-control", required="required") }}
+                                </div>
 
                         <div class="mb-3">
                             {{ form.email.label(class="form-label") }}
@@ -70,13 +68,10 @@
                             {% endif %}
                         </div>
 
-                        <div class="mb-3">
-                            {{ form.Birth_Date.label(class="form-label") }}
-                            {{ form.Birth_Date(class="form-control" ~ ' is-invalid' if form.Birth_Date.errors else '', type="date", required="required") }}
-                            {% for error in form.Birth_Date.errors %}
-                                <div class="invalid-feedback">Birth Date is required.</div>
-                            {% endfor %}
-                        </div>
+                                <div class="mb-3">
+                                    {{ form.Birth_Date.label(class="form-label") }}
+                                    {{ form.Birth_Date(class="form-control", type="date", required="required") }}
+                                </div>
 
                         <div class="mb-3">
                             {{ form.Univ_ID.label(class="form-label") }}
