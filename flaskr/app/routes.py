@@ -235,17 +235,3 @@ def request_loan():
         return redirect(url_for('home'))
     return render_template('loan.html', form=form)
 
-
-@app.route('/faculty',methods=['GET','POST'])
-@login_required
-def faculty():
-    form = FacultyForm()
-    if form.validate_on_submit():
-        faculty = Faculty(
-            faculty_name = form.name.data,
-            Department_ID = form.department_id.data
-        )
-        db.session.add(faculty)
-        db.session.commit()
-        return redirect(url_for('home'))
-    return render_template('faculty.html', form=form)

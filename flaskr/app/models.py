@@ -38,6 +38,7 @@ class Department(db.Model):
 class Loaned_Devices(db.Model):
     __tablename__ = 'Loaned_Devices'
     #we do not need serial #'s anymore
+    loan_ID = db.Column(db.Integer, unique = True, nullable=False, primary_key=True)
     barcode = db.Column(db.Integer, unique=True, nullable=False)
     Equipment_Model = db.Column(db.String(255), nullable=False)
     Equipment_Type = db.Column(db.String(255), nullable=False)
