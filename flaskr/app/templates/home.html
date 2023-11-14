@@ -23,7 +23,6 @@
         <p>Here are all the loan requests and details:</p>
         <table class="table table-bordered">
             <tr>
-                <td>Serial Number</td>
                 <td>Barcode</td>
                 <td>Equipment Model</td>
                 <td>Equipment Type</td>
@@ -35,7 +34,6 @@
             </tr>
             {% for loan in loans %}
             <tr>
-                <td>{{loan.serial_number}}</td>
                 <td>{{loan.barcode}}</td>
                 <td>{{loan.equipment_model}}</td>
                 <td>{{loan.equipment_type}}</td>

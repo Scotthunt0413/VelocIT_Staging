@@ -1,4 +1,3 @@
-from MySQLdb import IntegrityError
 from app import app
 
 from flask import render_template, redirect, url_for, request
@@ -12,26 +11,35 @@ login.login_view = "go"
 def getAllLoanData():
     loans = db.session.query(Loaned_Devices.barcode,Loaned_Devices.Equipment_Model,Loaned_Devices.Equipment_Type,Loaned_Devices.return_date,Loaned_Devices.takeout_date,Loaned_Devices.faculty_name,Loaned_Devices.loan_status)
     return [{
+        'serial_number': serialNumber,
         'barcode': barcode,
         'equipment_model': equipment_model,
         'equipment_type': equipment_type,
         'return_date': return_date,
         'borrow_date': borrow_date,
         'faculty_name': faculty_name,
-        'loan_status' : loan_status
-    } for(barcode, equipment_model, equipment_type, return_date, borrow_date, faculty_name, loan_status) in loans]
-
+        'loan_status': loan_status
+    } for(serialNumber, barcode, equipment_model, equipment_type, return_date, borrow_date, faculty_name, loan_status) in loans]
 
 def getSomeLoanData():
-    data = db.session.query(Loaned_Devices.barcode, Loaned_Devices.loan_status)
+    data = db.session.query(Loaned_Devices.barcode,Loaned_Devices.loan_status)
     return [{
-        'barcode' : barcode,
+        'barcode': barcode,
         'loan_status': loan_status
     } for(barcode,loan_status) in data]
 
-
-
-
+def setDates():
+    today = datetime.date.today()
+    devices = db.session.query(Loaned_Devices).all()
+    for device in devices:
+        date = device.return_date
+        barcode = device.barcode
+        if date < today:
+            db.session.query(Loaned_Devices).filter(Loaned_Devices.barcode == barcode).update({Loaned_Devices.loan_status: "Overdue"})
+            db.session.commit()
+        else:
+            db.session.query(Loaned_Devices).filter(Loaned_Devices.barcode == barcode).update({Loaned_Devices.loan_status: "Not Due"})
+            db.session.commit()
 
 @app.route('/', methods=['GET','POST'])
 def go():
@@ -56,95 +64,38 @@ def go():
     return render_template('login.html', form = form, data = data)
 
 
-
-
-@app.route('/register', methods=['GET', 'POST'])
+    
+@app.route('/register', methods=['GET','POST'])
 def register():
     form = RegisterForm()
-
-    # Fetch existing user information from the database
-    existing_users = Users.query.all()
-    existing_usernames = [user.user_name for user in existing_users]
-    existing_emails = [user.email for user in existing_users]
-    existing_univ_ids = [user.Univ_ID for user in existing_users]
-
     if form.validate_on_submit():
-        try:
-            existing_user = Users.query.filter(
-                (Users.user_name == form.user_name.data) | (Users.Univ_ID == form.Univ_ID.data) | (Users.email == form.email.data)
-            ).first()
-
-            if existing_user:
-                flash("ERROR: Please use a different ID, Email, or Username")
-                return render_template('register.html', form=form, existing_usernames=existing_usernames, existing_emails=existing_emails, existing_univ_ids=existing_univ_ids)
-
-            user = Users.query.filter_by(user_name=form.user_name.data).first()
-
-            if existing_user:
-                flash("ERROR: Please use a different ID, Email, or Username")
-                return render_template('register.html', form=form, existing_usernames=existing_usernames, existing_emails=existing_emails, existing_univ_ids=existing_univ_ids)
-
-            if user:
-                return render_template('register.html', form=form, msg='Username is already taken', existing_usernames=existing_usernames, existing_emails=existing_emails, existing_univ_ids=existing_univ_ids)
-
-            if form.email.data in existing_emails:
-                return render_template('register.html', form=form, msg='Email is already taken', existing_usernames=existing_usernames, existing_emails=existing_emails, existing_univ_ids=existing_univ_ids)
-
-            if form.Univ_ID.data in existing_univ_ids:
-                return render_template('register.html', form=form, msg='University ID is already taken', existing_usernames=existing_usernames, existing_emails=existing_emails, existing_univ_ids=existing_univ_ids)
-
+        user = db.session.query(Users).filter_by(user_name=form.user_name.data).first()
+        if user is not None:
+            return render_template('register.html',
+                form=form, msg='Username is already taken')
+        if user is None:
             user = Users(
-                user_name=form.user_name.data,
-                First_Name=form.First_Name.data,
-                Last_Name=form.Last_Name.data,
-                Birth_Date=form.Birth_Date.data,
-                Univ_ID=form.Univ_ID.data,
-                email=form.email.data
+                user_name = form.user_name.data,
+                First_Name = form.First_Name.data,
+                Last_Name = form.Last_Name.data,
+                Birth_Date = form.Birth_Date.data,
+                Univ_ID = form.Univ_ID.data,
+                email = form.email.data
             )
-
             user.set_password(form.user_password.data)
             db.session.add(user)
             db.session.commit()
             login_user(user)
-            flash('Registration successful', 'success')
-
-            return redirect(url_for('go')) 
-
-        except IntegrityError as e:
-            db.session.rollback()
-            if "UNIQUE constraint failed" in str(e):
-                flash('Error: This username or University ID is already in use.', 'danger')
-            else:
-                flash('An unexpected error occurred. Please try again.', 'danger')
-    return render_template('register.html', form=form)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+            msg = 'Registraton successful'
+            return redirect(url_for('home'))
+    return render_template('register.html', form = form)
 
 
 @app.route('/home')
 @login_required
 def home():
     loans = getAllLoanData()
+    setDates()
     return render_template('home.html',loans=loans)
 
 @app.route('/logout')
@@ -159,8 +110,8 @@ def logout():
 def request_loan():
     form = LoanForm()
     if form.validate_on_submit():
+        print("inside the if statement",file=sys.stderr)
         deviceLoan = Loaned_Devices(
-            serialNumber = form.serial.data,
             barcode = form.barcode.data,
             Equipment_Model = form.model.data,
             Equipment_Type = form.type.data,
@@ -170,6 +121,6 @@ def request_loan():
         )
         db.session.add(deviceLoan)
         db.session.commit()
+        setDates()
         return redirect(url_for('home'))
     return render_template('loan.html', form=form)
-
