@@ -19,8 +19,6 @@ IP = environ.get('MYSQL_IP')
 USERNAME = environ.get('MYSQL_USERNAME')
 PASSWORD = environ.get('MYSQL_PASSWORD')
 DB_NAME = environ.get('MYSQL_DBNAME')
-TEAMS_WEBHOOK_URL = environ.get('TEAMS_WEBHOOK_URL')
-TEAMS_WEBHOOK_URL = environ.get('TEAMS_WEBHOOK_URL')
 
 # Specify the connection parameters/credentials for the database
 DB_CONFIG_STR = f"mysql+pymysql://{USERNAME}:{PASSWORD}@{IP}/{DB_NAME}"
