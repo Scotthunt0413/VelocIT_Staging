@@ -11,7 +11,6 @@ login.login_view = "go"
 def getAllLoanData():
     loans = db.session.query(Loaned_Devices.barcode,Loaned_Devices.Equipment_Model,Loaned_Devices.Equipment_Type,Loaned_Devices.return_date,Loaned_Devices.takeout_date,Loaned_Devices.faculty_name,Loaned_Devices.loan_status)
     return [{
-        'serial_number': serialNumber,
         'barcode': barcode,
         'equipment_model': equipment_model,
         'equipment_type': equipment_type,
@@ -19,7 +18,7 @@ def getAllLoanData():
         'borrow_date': borrow_date,
         'faculty_name': faculty_name,
         'loan_status': loan_status
-    } for(serialNumber, barcode, equipment_model, equipment_type, return_date, borrow_date, faculty_name, loan_status) in loans]
+    } for(barcode, equipment_model, equipment_type, return_date, borrow_date, faculty_name, loan_status) in loans]
 
 def getSomeLoanData():
     data = db.session.query(Loaned_Devices.barcode,Loaned_Devices.loan_status)
