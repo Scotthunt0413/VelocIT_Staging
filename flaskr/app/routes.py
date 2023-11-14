@@ -28,6 +28,7 @@ def getSomeLoanData():
         'loan_status': loan_status
     } for(barcode,loan_status) in data]
 
+
 def setDates():
     today = datetime.date.today()
     devices = db.session.query(Loaned_Devices).all()
@@ -35,11 +36,12 @@ def setDates():
         date = device.return_date
         barcode = device.barcode
         if date < today:
-            db.session.query(Loaned_Devices).filter(Loaned_Devices.barcode == barcode).update({Loaned_Devices.loan_status: "Overdue"})
+            db.session.query(Loaned_Devices).filter(Loaned_Devices.barcode == barcode).update({Loaned_Devices.loan_status: "overdue"})
             db.session.commit()
         else:
-            db.session.query(Loaned_Devices).filter(Loaned_Devices.barcode == barcode).update({Loaned_Devices.loan_status: "Not Due"})
+            db.session.query(Loaned_Devices).filter(Loaned_Devices.barcode == barcode).update({Loaned_Devices.loan_status: "not due"})
             db.session.commit()
+
 
 @app.route('/', methods=['GET','POST'])
 def go():
@@ -106,21 +108,81 @@ def logout():
 
 
 @app.route('/request',methods=['GET','POST'])
-@login_required
+# def send_teams_webhook(data, html_message):
+#     try:
+#         teams_webhook_url = current_app.config['TEAMS_WEBHOOK_URL']
+
+#         payload = {
+#             "type" : "message", 
+#             "attachments" : [
+#                 {
+#                     "contentType" : "text/html",
+#                     "content" : html_message
+#                 }
+#             ]
+#         }
+
+#         headers = { 'Content-Type' : 'application/json'}
+
+#         response = requests.post(teams_webhook_url,
+#                                  json=payload,
+#                                  headers=headers)
+#         payload = {
+#             "type" : "message", 
+#             "attachments" : [
+#                 {
+#                     "contentType" : "text/html",
+#                     "content" : html_message
+#                 }
+#             ]
+#         }
+
+#         headers = { 'Content-Type' : 'application/json'}
+
+#         response = requests.post(teams_webhook_url,
+#                                  json=payload,
+#                                  headers=headers)
+
+#         if response.status_code == 200:
+#             return True
+#         return False
+#     except Exception as e:
+#         return False
+
+
 def request_loan():
     form = LoanForm()
     if form.validate_on_submit():
-        print("inside the if statement",file=sys.stderr)
+        # with open('message.html' , 'r', encoding='utf-8') as file:
+        #     html_message = file.read()
+
+        data = {
+            'barcode' : form.barcode.data,
+            'Equipment_Model' : form.model.data,
+            'Equipment_Type' : form.type.data,
+            'loan_in_date' : form.loan_in_date.data,
+            'loan_date_out' : form.loan_date_out.data,
+            'faculty_name' : form.faculty_name.data
+        }
+
+        # if send_teams_webhook(data, html_message):
+        #     flash('Loan Submitted Successfully Teams Notification Sent','success')
+        # else:
+        #     flash('Loan Submitted Successfully Teams Notification Failed','warning')
+
+        
         deviceLoan = Loaned_Devices(
-            barcode = form.barcode.data,
-            Equipment_Model = form.model.data,
-            Equipment_Type = form.type.data,
-            loan_in_date = form.loan_in_date.data,
-            loan_date_out = form.loan_date_out.data,
-            faculty_name = form.faculty_name.data
+            barcode=data['barcode'],
+            Equipment_Model=data['Equipment_Model'],
+            Equipment_Type=data['Equipment_Type'],
+            return_date=data['loan_in_date'],
+            takeout_date=data['loan_date_out'],
+            faculty_name=data['faculty_name']
         )
         db.session.add(deviceLoan)
         db.session.commit()
         setDates()
+        
         return redirect(url_for('home'))
     return render_template('loan.html', form=form)
+    
