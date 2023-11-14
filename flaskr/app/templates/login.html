@@ -12,25 +12,27 @@
 
 <body>
     <div class="form-box">
-        <h1> Login to your account </h1>
+        <img src="static/images/IT-logo.png">
         <form method="POST">
             {{ form.hidden_tag() }}
             <div class="input-group">
                 <div class="input-field">
                     <img src="static/images/user-icon.png">
-                    {{ form.user_name.label }}
-                    {{ form.user_name }}
+                    <!--{{ form.user_name.label(class="form-label") }}-->
+                    {{ form.user_name(class="form-control") }}
                 </div>
 
                 <div class="input-field">
                     <img src="static/images/lock-icon.png">
-                    {{ form.password.label}}
-                    {{ form.password}}
+                    <!--{{ form.password.label(class="form-label")}}-->
+                    {{ form.password(class="form-control")}}
                 </div>
 
-                <div class="input-field">
-                    {{ form.submit}}
+                <div class="btn-field">
+                    {{ form.submit(class="btn")}}
                 </div>
+
+                <a href="#"> Forgot password?</a>
                 
             </div>
         </form>
