@@ -245,6 +245,7 @@ def request_loan():
         db.session.add(deviceLoan)
         db.session.commit()
         setDates()
+        
         return redirect(url_for('home'))
     return render_template('loan.html', form=form)
-
+    
