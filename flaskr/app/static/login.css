@@ -6,6 +6,11 @@
     box-sizing: border-box;
 }
 
+.form-box img{
+    width: 220px;
+    height: 42px;
+}
+
 .input-field{
     background: #eaeaea;
     margin: 18px 0;

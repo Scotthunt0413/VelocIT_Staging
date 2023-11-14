@@ -1,43 +1,46 @@
 <!DOCTYPE html>
 <html lang="en">
-<link rel="stylesheet" href="static/base.css">
-
+    <head>
+        <title>VelocIT</title>
+        <link rel="stylesheet" href="static/base.css">
+    </head>
 <body>
-    
-    <nav class="navbar">
-        <div class="navbarlogo">
-            <a class="logo" href="#">
-                <!--<img src="static/images/IT-logo.png">-->
-            </a>
-        </div>
-            
-            <div class="navbar-links">
-                <ul>
-                    {% if current_user.is_authenticated: %}
-                    <li>
-                        <a href="/home">Home</a>
-                    </li>
-                    
-                    <li>
-                        <a href="/register">Register New User</a>
-                    </li>
-                    
-                    <li>
-                        <a href="/faculty">Add New Faculty</a>
-                    </li>
-                    
-                    <li>
-                        <a href="/request">Add Loan</a>
-                    </li>
-                    <li>
-                        <a href="/logout">Logout</a>
-                    </li>
-                    {% endif %}
 
-                </ul>
-            </div>
+    <nav class="navbar">
+        <div class="navbar-links">
+            <ul>
+                {% if current_user.is_authenticated: %}
+                <li class="logo">
+                    <a href="#"> VelocIT </a>
+                </li>
+
+                <li class="item">
+                    <a href="/home">Home</a>
+                </li>
+                
+                <li class="item">
+                    <a href="/register">Register New User</a>
+                </li>
+                
+                <li class="item">
+                    <a href="/faculty">Add New Faculty</a>
+                </li>
+                
+                <li class="item">
+                    <a href="/request">Add Loan</a>
+                </li>
+
+                <li class="item">
+                    <a href="/logout">Logout</a>
+                </li>
+                {% endif %}
+            </ul>
+
+        </div>
+
     </nav>
-    <hr>
+
+
     
     {% block content %}{% endblock %}
 </body>

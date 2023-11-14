@@ -1,38 +1,23 @@
-body {
-    margin: 0px;
-}
-
-img {
-    width: 170px;
-    height: 30px;
-}
-
-.navbar {
-    width: 100%;
-    overflow: hidden;
-    background-color: #363636;
-}
-
-.navbar-links ul {
-    list-style-type: none;
+*{
+    box-sizing: border-box;
     padding: 0;
     margin: 0;
-    display: flex;
-    justify-content: flex-end; /* Align items to the right */
 }
 
-.navbar-links li {
-    margin-left: 15px; /* Adjust spacing between items */
+body{
+    font-family: 'Kantumruy', sans-serif;
 }
 
-.navbar-links a {
-    display: block;
+nav{
+    background-color: #363636;
+    padding: 5px 20px;
+
+}
+
+ul{
+    list-style-type: none;
+}
+
+a{
     color: white;
-    text-align: center;
-    padding: 15px;
-    text-decoration: none;
-}
-
-.navbar-links a:hover {
-    background-color: black;
 }
