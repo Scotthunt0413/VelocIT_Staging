@@ -11,7 +11,7 @@ class Users(UserMixin, db.Model):
 
     First_Name = db.Column(db.String(32), unique=False, nullable=False)
     Last_Name = db.Column(db.String(64), unique=True, nullable=False)
-    Univ_ID = db.Column(db.Integer, unique=True, nullable=False)
+    Univ_ID = db.Column(db.String(10), unique=True, nullable=False)
     Birth_Date = db.Column(db.DATE, unique=False, nullable=False)
     email = db.Column(db.String(64), unique=True, nullable=False)
     user_name = db.Column(db.String(255), unique=True, nullable=False)
@@ -38,7 +38,7 @@ class Department(db.Model):
 class Loaned_Devices(db.Model):
     __tablename__ = 'Loaned_Devices'
     loan_ID = db.Column(db.Integer, unique = True, nullable=False, primary_key=True)
-    barcode = db.Column(db.Integer, unique=True, nullable=False)
+    barcode = db.Column(db.String(10), unique=True, nullable=False)
     Equipment_Model = db.Column(db.String(255), nullable=False)
     Equipment_Type = db.Column(db.String(255), nullable=False)
     return_date = db.Column(db.DATE, unique=False, nullable=False)
