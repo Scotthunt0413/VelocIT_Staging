@@ -1,12 +1,12 @@
 from app import app
-
-from flask import render_template, redirect, url_for, request
+from flask import render_template,render_template_string, redirect, url_for, request, current_app,flash
 from app.forms import LoginForm, RegisterForm, ResetForm, LoanForm
 from app.models import Users, Faculty, Department, Loaned_Devices
-import datetime
-import sys
+import datetime,os,json
+import sys,requests
 from app import db, login
 from flask_login import login_user, logout_user, current_user, login_required
+from sqlalchemy.exc import IntegrityError
 login.login_view = "go"
 def getAllLoanData():
     loans = db.session.query(Loaned_Devices.barcode,Loaned_Devices.Equipment_Model,Loaned_Devices.Equipment_Type,Loaned_Devices.return_date,Loaned_Devices.takeout_date,Loaned_Devices.faculty_name,Loaned_Devices.loan_status)
@@ -65,31 +65,61 @@ def go():
     return render_template('login.html', form = form, data = data)
 
 
-    
-@app.route('/register', methods=['GET','POST'])
+
+@app.route('/register', methods=['GET', 'POST'])
 def register():
     form = RegisterForm()
+    existing_users = Users.query.all()
+    existing_usernames = [user.user_name for user in existing_users]
+    existing_emails = [user.email for user in existing_users]
+    existing_univ_ids = [user.Univ_ID for user in existing_users]
+
     if form.validate_on_submit():
-        user = db.session.query(Users).filter_by(user_name=form.user_name.data).first()
-        if user is not None:
-            return render_template('register.html',
-                form=form, msg='Username is already taken')
-        if user is None:
+        try:
+            existing_user = Users.query.filter(
+                (Users.user_name == form.user_name.data) | (Users.Univ_ID == form.Univ_ID.data) | (Users.email == form.email.data)
+            ).first()
+
+            if existing_user:
+                flash("ERROR: Please use a different ID, Email, or Username")
+                return render_template('register.html', form=form, existing_usernames=existing_usernames, existing_emails=existing_emails, existing_univ_ids=existing_univ_ids)
+
+            user = Users.query.filter_by(user_name=form.user_name.data).first()
+
+            if existing_user:
+                flash("ERROR: Please use a different ID, Email, or Username")
+                return render_template('register.html', form=form, existing_usernames=existing_usernames, existing_emails=existing_emails, existing_univ_ids=existing_univ_ids)
+
+            if user:
+                return render_template('register.html', form=form, msg='Username is already taken', existing_usernames=existing_usernames, existing_emails=existing_emails, existing_univ_ids=existing_univ_ids)
+
+            if form.email.data in existing_emails:
+                return render_template('register.html', form=form, msg='Email is already taken', existing_usernames=existing_usernames, existing_emails=existing_emails, existing_univ_ids=existing_univ_ids)
+
+            if form.Univ_ID.data in existing_univ_ids:
+                return render_template('register.html', form=form, msg='University ID is already taken', existing_usernames=existing_usernames, existing_emails=existing_emails, existing_univ_ids=existing_univ_ids)
+
             user = Users(
-                user_name = form.user_name.data,
-                First_Name = form.First_Name.data,
-                Last_Name = form.Last_Name.data,
-                Birth_Date = form.Birth_Date.data,
-                Univ_ID = form.Univ_ID.data,
-                email = form.email.data
+                user_name=form.user_name.data,
+                First_Name=form.First_Name.data,
+                Last_Name=form.Last_Name.data,
+                Birth_Date=form.Birth_Date.data,
+                Univ_ID=form.Univ_ID.data,
+                email=form.email.data
             )
+
             user.set_password(form.user_password.data)
             db.session.add(user)
             db.session.commit()
             login_user(user)
-            msg = 'Registraton successful'
-            return redirect(url_for('home'))
-    return render_template('register.html', form = form)
+            flash('Registration successful', 'success')
+
+            return redirect(url_for('go')) 
+
+        except IntegrityError as e:
+            db.session.rollback()
+        flash('An unexpected error occurred. Please try again.', 'danger')
+    return render_template('register.html', form=form)
 
 
 @app.route('/home')
@@ -106,54 +136,18 @@ def logout():
     return redirect(url_for('go'))
 
 
+
+
+
+
+
+
 @app.route('/request',methods=['GET','POST'])
-# def send_teams_webhook(data, html_message):
-#     try:
-#         teams_webhook_url = current_app.config['TEAMS_WEBHOOK_URL']
-
-#         payload = {
-#             "type" : "message", 
-#             "attachments" : [
-#                 {
-#                     "contentType" : "text/html",
-#                     "content" : html_message
-#                 }
-#             ]
-#         }
-
-#         headers = { 'Content-Type' : 'application/json'}
-
-#         response = requests.post(teams_webhook_url,
-#                                  json=payload,
-#                                  headers=headers)
-#         payload = {
-#             "type" : "message", 
-#             "attachments" : [
-#                 {
-#                     "contentType" : "text/html",
-#                     "content" : html_message
-#                 }
-#             ]
-#         }
-
-#         headers = { 'Content-Type' : 'application/json'}
-
-#         response = requests.post(teams_webhook_url,
-#                                  json=payload,
-#                                  headers=headers)
-
-#         if response.status_code == 200:
-#             return True
-#         return False
-#     except Exception as e:
-#         return False
-
-
+@login_required
 def request_loan():
     form = LoanForm()
     if form.validate_on_submit():
-        # with open('message.html' , 'r', encoding='utf-8') as file:
-        #     html_message = file.read()
+
 
         data = {
             'barcode' : form.barcode.data,
@@ -164,10 +158,45 @@ def request_loan():
             'faculty_name' : form.faculty_name.data
         }
 
-        # if send_teams_webhook(data, html_message):
-        #     flash('Loan Submitted Successfully Teams Notification Sent','success')
-        # else:
-        #     flash('Loan Submitted Successfully Teams Notification Failed','warning')
+        teams_webhook_url = os.getenv('TEAMS_WEBHOOK_URL')
+        
+        
+        body_content = [
+            {"type": "TextBlock", "text": f"{key}: {data[key]}"}
+            for key in data.keys()
+        ]
+
+        loan_payload = {
+            "type": "message",
+            "attachments": [
+                {
+                    "contentType": "application/vnd.microsoft.card.adaptive",
+                    "content": {
+                        "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+                        "type": "AdaptiveCard",
+                        "body": [
+
+                            {
+                                "type": "TextBlock",
+                                "text": "Loan Request Notification",
+                                "weight":"bolder",
+                                "size" : "large"
+                    
+                            },
+                            *body_content
+                        ]
+                    }
+                }
+            ]
+        }
+
+
+        if send_webhook(loan_payload, teams_webhook_url):
+            flash('Loan Submitted Successfully Teams Notification Sent', 'success')
+            print("Webhook Success: Teams Notification Sent")
+        else:
+            flash('Loan Submitted Successfully Teams Notification Failed', 'warning')
+            print("Webhook Error: Teams Notification Failed")
 
         
         deviceLoan = Loaned_Devices(
@@ -185,3 +214,28 @@ def request_loan():
         return redirect(url_for('home'))
     return render_template('loan.html', form=form)
     
+
+def send_webhook(payload, teams_webhook_url):
+    try:
+        headers = {'Content-Type': 'application/json'}
+
+        response = requests.post(teams_webhook_url,
+                                 json=payload,
+                                 headers=headers)
+        
+        if response.status_code == 200:
+            print("Webhook Success: Teams Notification Sent")
+            print("Response Content:", response.content)  # Log the response content for further inspection
+            return True
+        else:
+            print("Webhook Error: Teams Notification Failed")
+            print("Response Content:", response.content)  # Log the response content for further inspection
+            return False
+    
+    except Exception as e:
+        print(f"Webhook Error: {str(e)}")
+        return False
+    
+
+
+

@@ -6,7 +6,7 @@ from wtforms.widgets import CheckboxInput, ListWidget
 # This is the Registration form for the IT Department Users
 
 class RegisterForm(FlaskForm):
-    Univ_ID = IntegerField('SCSU ID', validators=[DataRequired()], render_kw={"Placeholder" : "SCSU ID"})
+    Univ_ID = StringField('SCSU ID', validators=[DataRequired()], render_kw={"Placeholder" : "SCSU ID"})
     Birth_Date = DateField('Birth Date',validators=[DataRequired()], render_kw={"placeholder": "Birth Date"})
     First_Name = StringField('First Name: ',validators=[DataRequired()], render_kw={"placeholder" : "First Name"})
     Last_Name = StringField('Last Name: ',validators=[DataRequired()], render_kw={"placeholder" : "Last Name"})
