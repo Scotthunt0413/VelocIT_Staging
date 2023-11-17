@@ -6,7 +6,7 @@ from wtforms.widgets import CheckboxInput, ListWidget
 # This is the Registration form for the IT Department Users
 
 class RegisterForm(FlaskForm):
-    Univ_ID = IntegerField('SCSU ID', validators=[DataRequired()], render_kw={"Placeholder" : "SCSU ID"})
+    Univ_ID = StringField('SCSU ID', validators=[DataRequired()], render_kw={"Placeholder" : "SCSU ID"})
     Birth_Date = DateField('Birth Date',validators=[DataRequired()], render_kw={"placeholder": "Birth Date"})
     First_Name = StringField('First Name: ',validators=[DataRequired()], render_kw={"placeholder" : "First Name"})
     Last_Name = StringField('Last Name: ',validators=[DataRequired()], render_kw={"placeholder" : "Last Name"})
@@ -25,7 +25,7 @@ class LoginForm(FlaskForm):
 # Reset form will need two forms of Identification to reset passwords both birthday and University ID are required
 class ResetForm(FlaskForm):
     user_name = StringField('Username', validators=[DataRequired()], render_kw={"placeholder": "Username"})
-    Univ_ID = IntegerField('SCSU ID', validators=[DataRequired()], render_kw={"Placeholder" : "SCSU ID"})
+    Univ_ID = StringField('SCSU ID', validators=[DataRequired()], render_kw={"Placeholder" : "SCSU ID"})
     Birth_Date = DateField('Birth Date',validators=[DataRequired()], render_kw={"placeholder": "Birth Date"})
     submit = SubmitField(label='Reset Password', validators=[DataRequired()])
 
@@ -34,10 +34,12 @@ class ResetForm(FlaskForm):
 
 #WE will need to readdress the loan form we want to start the login process first 
 class LoanForm(FlaskForm):
-   barcode = IntegerField('Barcode: ',validators=[DataRequired()])
+   barcode = StringField('Barcode: ',validators=[DataRequired()])
    model = StringField('Equipment Model: ',validators=[DataRequired()])
    type = StringField('Equipment Type: ',validators=[DataRequired()])
-   loan_in_date = DateField('When will this loan be due? ',validators=[DataRequired()])
-   loan_date_out = DateField('When was this loan taken out? ',validators=[DataRequired()])
+   return_date = DateField('When will this loan be due? ',validators=[DataRequired()])
+   takeout_date = DateField('When was this loan taken out? ',validators=[DataRequired()])
    faculty_name = StringField('Faculty Name: ',validators=[DataRequired()])
+   facultyLocation = StringField('Faculty Location',validators=[DataRequired()])
+   facultyEmail = EmailField('Faculty Email: ',validators=[DataRequired()])
    submit = SubmitField('Record Loan')
