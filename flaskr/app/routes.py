@@ -1,13 +1,15 @@
 from app import app
-
-from flask import render_template, redirect, url_for, request
-from app.forms import LoginForm, RegisterForm, ResetForm, LoanForm
+from flask import flash, render_template, redirect, url_for, request,current_app,session
+from app.forms import LoginForm, RegisterForm, ResetForm, LoanForm, ResetPassword, ResetForm
 from app.models import Users, Faculty, Department, Loaned_Devices
 import datetime
 import sys
 from app import db, login
 from flask_login import login_user, logout_user, current_user, login_required
+from werkzeug.security import generate_password_hash, check_password_hash
+
 login.login_view = "go"
+savedUser = None
 def getAllLoanData():
     loans = db.session.query(Loaned_Devices.barcode,Loaned_Devices.Equipment_Model,Loaned_Devices.Equipment_Type,Loaned_Devices.return_date,Loaned_Devices.takeout_date,Loaned_Devices.faculty_name,Loaned_Devices.loan_status)
     return [{
@@ -40,7 +42,6 @@ def setDates():
         else:
             db.session.query(Loaned_Devices).filter(Loaned_Devices.barcode == barcode).update({Loaned_Devices.loan_status: "not due"})
             db.session.commit()
-
 
 @app.route('/', methods=['GET','POST'])
 def go():
@@ -184,4 +185,40 @@ def request_loan():
         
         return redirect(url_for('home'))
     return render_template('loan.html', form=form)
-    
+
+@app.route('/identity', methods=['GET','POST'])
+def identity():
+    form = ResetForm()
+    if form.validate_on_submit():
+        user = db.session.query(Users).filter(Users.user_name == form.user_name.data).first()
+        if user is None:
+            msg = "Username Not Found"
+            return render_template('verify_identity.html', form = form, msg = msg)
+        if form.Birth_Date.data != user.Birth_Date:
+            msg = "\nIncorrect Birth Date"
+            return render_template('verify_identity.html', form = form, msg = msg)
+        if form.Univ_ID.data != int(user.Univ_ID):
+            msg = "\nIncorrect University ID"
+            return render_template('verify_identity.html', form = form, msg = msg)
+        if form.email.data != user.email:
+            msg = "\nIncorrect Email"
+            return render_template('verify_identity.html', form = form, msg = msg)
+        global savedUser
+        savedUser = user
+        return redirect(url_for('reset'))
+    return render_template('verify_identity.html', form = form, msg=None)
+
+@app.route('/reset', methods=['GET','POST'])
+def reset():
+    form = ResetPassword()
+    user = savedUser
+    id = user.id
+    if form.validate_on_submit():
+        if form.password.data != form.confirmPassword.data:
+            msg = "Passwords do not match"
+            return render_template('reset_password.html', form = form, msg=msg)
+        newPassword = generate_password_hash(form.password.data)
+        db.session.query(Users).filter(Users.id == id).update({Users.user_password:newPassword})
+        db.session.commit()
+        return redirect(url_for('go'))
+    return render_template('reset_password.html', form = form, msg=None)
