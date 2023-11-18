@@ -28,9 +28,13 @@ class ResetForm(FlaskForm):
     user_name = StringField('Username', validators=[DataRequired()], render_kw={"placeholder": "Username"})
     Univ_ID = StringField('SCSU ID', validators=[DataRequired()], render_kw={"Placeholder" : "SCSU ID"})
     Birth_Date = DateField('Birth Date',validators=[DataRequired()], render_kw={"placeholder": "Birth Date"})
-    submit = SubmitField(label='Reset Password', validators=[DataRequired()])
+    email = EmailField('Email', validators=[DataRequired()])
+    submit = SubmitField(label='Confirm Identity')
 
-
+class ResetPassword(FlaskForm):
+    password = PasswordField('Password', validators=[DataRequired()], render_kw={"placeholder": "Password"})
+    confirmPassword = PasswordField('Confirm Password', validators=[DataRequired()], render_kw={"placeholder": "Confirm Password"})
+    submit = SubmitField('Reset Password')
 
 
 

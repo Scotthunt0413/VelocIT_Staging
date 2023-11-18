@@ -29,6 +29,7 @@
                 <td>Loan Return Date</td>
                 <td>Date Loan was Taken Out</td>
                 <td>Faculty Name</td>
+                <td>Faculty Email</td>
                 <td>Loan Status</td>
             
             </tr>
@@ -40,11 +41,12 @@
                 <td>{{loan.return_date}}</td>
                 <td>{{loan.borrow_date}}</td>
                 <td>{{loan.faculty_name}}</td>
+                <td>{{loan.faculty_email}}</td>
                 <td>{{loan.loan_status}}</td>
             </tr>
             {% else %}
             <tr>
-                <td colspan="7">No Data</td>
+                <td colspan="8">No Data</td>
             </tr>
             {% endfor %}
         </table>

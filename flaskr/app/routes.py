@@ -1,13 +1,17 @@
 from app import app
-from flask import render_template, redirect, url_for, request,flash
-from app.forms import LoginForm, RegisterForm, ResetForm, LoanForm
+from flask import flash, render_template, redirect, url_for, request,current_app,session
+from app.forms import LoginForm, RegisterForm, ResetForm, LoanForm, ResetPassword, ResetForm
 from app.models import Users, Faculty, Department, Loaned_Devices
 import datetime,requests,os
 from datetime import datetime, timedelta
 from sqlalchemy.exc import IntegrityError
 from app import db, login
 from flask_login import login_user, logout_user, current_user, login_required
+from werkzeug.security import generate_password_hash, check_password_hash
+from flask_mail import Mail, Message
+
 login.login_view = "go"
+savedUser = None
 def getAllLoanData():
     loans = db.session.query(Loaned_Devices.barcode,Loaned_Devices.Equipment_Model,Loaned_Devices.Equipment_Type,Loaned_Devices.borrow_date,Loaned_Devices.return_date,Loaned_Devices.faculty_name,Loaned_Devices.loan_status)
     return [{
@@ -17,8 +21,9 @@ def getAllLoanData():
         'borrow_date': borrow_date,
         'return_date': return_date,
         'faculty_name': faculty_name,
+        'faculty_email': faculty_email,
         'loan_status': loan_status
-    } for(barcode, Equipment_Model, Equipment_Type, return_date, borrow_date, faculty_name, loan_status) in loans]
+    } for(barcode, equipment_model, equipment_type, return_date, borrow_date, faculty_name, faculty_email, loan_status) in loans]
 
 def getSomeLoanData():
     data = db.session.query(Loaned_Devices.barcode,Loaned_Devices.loan_status)
@@ -41,6 +46,31 @@ def setDates():
             db.session.query(Loaned_Devices).filter(Loaned_Devices.barcode == barcode).update({Loaned_Devices.loan_status: "not due"})
             db.session.commit()
 
+#starting mail functionality
+def Notify():
+    today = datetime.date.today()
+    devices = db.session.query(Loaned_Devices).all()
+    for device in devices:
+        recipient = device.faculty_name
+        recipient_email = device.faculty_email
+        date = device.return_date
+        datediff = (date-today).days
+        #print("Datediff: ",datediff)
+        days = ""
+        if datediff < 0:
+            print("overdue")
+        else:
+            if datediff == 1:
+                days = "one"
+            elif datediff == 3:
+                days = "three"
+            elif datediff == 5:
+                days = 'five'
+        if days:
+            message = f"Hi, {recipient}. \n This is a reminder that your loan is due in {days} days. Please make sure to return it on time. \n Thanks, IT"
+            subject = "Loan Reminder"
+            msg = Message(subject, recipients=[recipient_email], body = message)
+            mail.send(msg)
 
 @app.route('/', methods=['GET','POST'])
 def go():
@@ -132,6 +162,7 @@ def register():
 def home():
     loans = getAllLoanData()
     setDates()
+    Notify()
     return render_template('home.html',loans=loans)
 
 
@@ -276,6 +307,46 @@ def save_loan_data(data):
             faculty_name=data['faculty_name'],
             faculty_email=data['faculty_email']
         )
-    db.session.add(deviceLoan)
-    db.session.commit()
-       
+        db.session.add(deviceLoan)
+        db.session.commit()
+        setDates()
+        Notify()
+        return redirect(url_for('home'))
+    return render_template('loan.html', form=form)
+
+@app.route('/identity', methods=['GET','POST'])
+def identity():
+    form = ResetForm()
+    if form.validate_on_submit():
+        user = db.session.query(Users).filter(Users.user_name == form.user_name.data).first()
+        if user is None:
+            msg = "Username Not Found"
+            return render_template('verify_identity.html', form = form, msg = msg)
+        if form.Birth_Date.data != user.Birth_Date:
+            msg = "\nIncorrect Birth Date"
+            return render_template('verify_identity.html', form = form, msg = msg)
+        if form.Univ_ID.data != int(user.Univ_ID):
+            msg = "\nIncorrect University ID"
+            return render_template('verify_identity.html', form = form, msg = msg)
+        if form.email.data != user.email:
+            msg = "\nIncorrect Email"
+            return render_template('verify_identity.html', form = form, msg = msg)
+        global savedUser
+        savedUser = user
+        return redirect(url_for('reset'))
+    return render_template('verify_identity.html', form = form, msg=None)
+
+@app.route('/reset', methods=['GET','POST'])
+def reset():
+    form = ResetPassword()
+    user = savedUser
+    id = user.id
+    if form.validate_on_submit():
+        if form.password.data != form.confirmPassword.data:
+            msg = "Passwords do not match"
+            return render_template('reset_password.html', form = form, msg=msg)
+        newPassword = generate_password_hash(form.password.data)
+        db.session.query(Users).filter(Users.id == id).update({Users.user_password:newPassword})
+        db.session.commit()
+        return redirect(url_for('go'))
+    return render_template('reset_password.html', form = form, msg=None)
