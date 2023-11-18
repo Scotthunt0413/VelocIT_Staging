@@ -4,14 +4,15 @@ from app.forms import LoginForm, RegisterForm, ResetForm, LoanForm, ResetPasswor
 from app.models import Users, Faculty, Department, Loaned_Devices
 import datetime
 import sys
-from app import db, login
+from app import db, login, mail, moment, bootstrap
 from flask_login import login_user, logout_user, current_user, login_required
 from werkzeug.security import generate_password_hash, check_password_hash
+from flask_mail import Mail, Message
 
 login.login_view = "go"
 savedUser = None
 def getAllLoanData():
-    loans = db.session.query(Loaned_Devices.barcode,Loaned_Devices.Equipment_Model,Loaned_Devices.Equipment_Type,Loaned_Devices.return_date,Loaned_Devices.takeout_date,Loaned_Devices.faculty_name,Loaned_Devices.loan_status)
+    loans = db.session.query(Loaned_Devices.barcode,Loaned_Devices.Equipment_Model,Loaned_Devices.Equipment_Type,Loaned_Devices.return_date,Loaned_Devices.takeout_date,Loaned_Devices.faculty_name,Loaned_Devices.faculty_email,Loaned_Devices.loan_status)
     return [{
         'barcode': barcode,
         'equipment_model': equipment_model,
@@ -19,8 +20,9 @@ def getAllLoanData():
         'return_date': return_date,
         'borrow_date': borrow_date,
         'faculty_name': faculty_name,
+        'faculty_email': faculty_email,
         'loan_status': loan_status
-    } for(barcode, equipment_model, equipment_type, return_date, borrow_date, faculty_name, loan_status) in loans]
+    } for(barcode, equipment_model, equipment_type, return_date, borrow_date, faculty_name, faculty_email, loan_status) in loans]
 
 def getSomeLoanData():
     data = db.session.query(Loaned_Devices.barcode,Loaned_Devices.loan_status)
@@ -42,6 +44,18 @@ def setDates():
         else:
             db.session.query(Loaned_Devices).filter(Loaned_Devices.barcode == barcode).update({Loaned_Devices.loan_status: "not due"})
             db.session.commit()
+
+#starting mail functionality
+def sendEmails():
+    today = datetime.date.today()
+    devices = db.session.query(Loaned_Devices).all()
+    for device in devices:
+        recipient = device.faculty_name
+        date = device.return_date
+        if date < today-datetime.timedelta(days=2):
+            print("Two Days Overdue")
+        if date > today-datetime.timedelta(days=2):
+            print("Due in Two Days")
 
 @app.route('/', methods=['GET','POST'])
 def go():
@@ -162,7 +176,8 @@ def request_loan():
             'Equipment_Type' : form.type.data,
             'loan_in_date' : form.loan_in_date.data,
             'loan_date_out' : form.loan_date_out.data,
-            'faculty_name' : form.faculty_name.data
+            'faculty_name' : form.faculty_name.data,
+            'faculty_email': form.faculty_email.data
         }
 
         # if send_teams_webhook(data, html_message):
@@ -177,12 +192,13 @@ def request_loan():
             Equipment_Type=data['Equipment_Type'],
             return_date=data['loan_in_date'],
             takeout_date=data['loan_date_out'],
-            faculty_name=data['faculty_name']
+            faculty_name=data['faculty_name'],
+            faculty_email=data['faculty_email']
         )
         db.session.add(deviceLoan)
         db.session.commit()
         setDates()
-        
+        sendEmails()
         return redirect(url_for('home'))
     return render_template('loan.html', form=form)
 

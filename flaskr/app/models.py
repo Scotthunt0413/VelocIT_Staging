@@ -44,6 +44,7 @@ class Loaned_Devices(db.Model):
     return_date = db.Column(db.DATE, unique=False, nullable=False)
     takeout_date = db.Column(db.DATE, unique=False, nullable=False)
     faculty_name = db.Column(db.String(255), nullable=True)
+    faculty_email = db.Column(db.String(255), nullable=True)
     loan_status = db.Column(db.String(255),nullable=True)
     
 @login.user_loader

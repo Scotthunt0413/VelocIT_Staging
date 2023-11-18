@@ -3,6 +3,8 @@ from dotenv import load_dotenv
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_bootstrap import Bootstrap
+from flask_moment import Moment
+from flask_mail import Mail, Message
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'VelocIT'
@@ -33,6 +35,18 @@ login = LoginManager(app)
 
 bootstrap = Bootstrap(app)
 
+mail = Mail(app)
 
+moment = Moment(app)
+
+app.config.update(
+        MAIL_SERVER = 'smtp.gmail.com',
+        MAIL_PORT = 465,
+        MAIL_USE_TLS = False,
+        MAIL_USE_SSL = True, 
+        MAIL_USERNAME = 'ij4.cheung@gmail.com',
+        MAIL_PASSWORD = environ.get('MAIL_PASSWORD'),
+        MAIL_DEFAULT_SENDER = ('Ian Cheung', 'ij4.cheung@gmail.com'),
+        SECRET_KEY = 'abc')
 
 from app import routes
