@@ -3,12 +3,8 @@ from dotenv import load_dotenv
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_bootstrap import Bootstrap
-
-app = Flask(__name__)
-app.config['SECRET_KEY'] = 'VelocIT'
-
 from os import environ
-
+app = Flask(__name__)
 
 # force loading of environment variables
 
@@ -19,11 +15,15 @@ IP = environ.get('MYSQL_IP')
 USERNAME = environ.get('MYSQL_USERNAME')
 PASSWORD = environ.get('MYSQL_PASSWORD')
 DB_NAME = environ.get('MYSQL_DBNAME')
+SECRET_KEY = environ.get('SECRET_KEY')
+
+
 
 # Specify the connection parameters/credentials for the database
 DB_CONFIG_STR = f"mysql+pymysql://{USERNAME}:{PASSWORD}@{IP}/{DB_NAME}"
 app.config['SQLALCHEMY_DATABASE_URI'] = DB_CONFIG_STR
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"]= True
+app.config['SECRET_KEY'] = SECRET_KEY
 
 # Create database connection and associate it with the Flask application
 
