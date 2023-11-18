@@ -44,5 +44,5 @@ class LoanForm(FlaskForm):
    loan_in_date = DateField('When will this loan be due? ',validators=[DataRequired()])
    loan_date_out = DateField('When was this loan taken out? ',validators=[DataRequired()])
    faculty_name = StringField('Faculty Name: ',validators=[DataRequired()])
-   faculty_email = EmailField('Faculty Email',validators=[DataRequired()])
+   faculty_email = EmailField('Faculty Email: ',validators=[DataRequired()])
    submit = SubmitField('Record Loan')
