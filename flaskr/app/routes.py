@@ -46,18 +46,23 @@ def setDates():
             db.session.commit()
 
 #starting mail functionality
-def sendEmails():
+def Notify():
     today = datetime.date.today()
     devices = db.session.query(Loaned_Devices).all()
     for device in devices:
         recipient = device.faculty_name
         date = device.return_date
-        if date < today-datetime.timedelta(days=1):
-            print("One Day Overdue")
-        elif date < today-datetime.timedelta(days=3):
-            print("Three Days Overdue")
+        datediff = (date-today).days
+        #print("Datediff: ",datediff)
+        if datediff < 0:
+            print("overdue")
         else:
-            print("Five Days Overdue")
+            if datediff == 1:
+                print("One Day Overdue")
+            elif datediff == 3:
+                print("Three Days Overdue")
+            elif datediff == 5:
+                print("Five Days Overdue")
 
 @app.route('/', methods=['GET','POST'])
 def go():
