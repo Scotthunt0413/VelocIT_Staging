@@ -52,10 +52,12 @@ def sendEmails():
     for device in devices:
         recipient = device.faculty_name
         date = device.return_date
-        if date < today-datetime.timedelta(days=2):
-            print("Two Days Overdue")
-        if date > today-datetime.timedelta(days=2):
-            print("Due in Two Days")
+        if date < today-datetime.timedelta(days=1):
+            print("One Day Overdue")
+        if date < today-datetime.timedelta(days=3):
+            print("Three Days Overdue")
+        if date < today-datetime.timedelta(days=5):
+            print("Five Days Overdue")
 
 @app.route('/', methods=['GET','POST'])
 def go():
