@@ -5,7 +5,7 @@ from app.models import Users, Faculty, Department, Loaned_Devices
 import datetime,requests,os
 from datetime import datetime, timedelta
 from sqlalchemy.exc import IntegrityError
-from app import db, login
+from app import db, login, mail, moment, bootstrap
 from flask_login import login_user, logout_user, current_user, login_required
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_mail import Mail, Message
@@ -13,7 +13,7 @@ from flask_mail import Mail, Message
 login.login_view = "go"
 savedUser = None
 def getAllLoanData():
-    loans = db.session.query(Loaned_Devices.barcode,Loaned_Devices.Equipment_Model,Loaned_Devices.Equipment_Type,Loaned_Devices.borrow_date,Loaned_Devices.return_date,Loaned_Devices.faculty_name,Loaned_Devices.loan_status)
+    loans = db.session.query(Loaned_Devices.barcode,Loaned_Devices.Equipment_Model,Loaned_Devices.Equipment_Type,Loaned_Devices.borrow_date,Loaned_Devices.return_date,Loaned_Devices.faculty_name,Loaned_Devices.faculty_email,Loaned_Devices.loan_status)
     return [{
         'barcode': barcode,
         'Equipment_Model': Equipment_Model,
@@ -23,7 +23,7 @@ def getAllLoanData():
         'faculty_name': faculty_name,
         'faculty_email': faculty_email,
         'loan_status': loan_status
-    } for(barcode, equipment_model, equipment_type, return_date, borrow_date, faculty_name, faculty_email, loan_status) in loans]
+    } for(barcode, Equipment_Model, Equipment_Type, return_date, borrow_date, faculty_name, faculty_email, loan_status) in loans]
 
 def getSomeLoanData():
     data = db.session.query(Loaned_Devices.barcode,Loaned_Devices.loan_status)
@@ -48,7 +48,7 @@ def setDates():
 
 #starting mail functionality
 def Notify():
-    today = datetime.date.today()
+    today = datetime.today().date()
     devices = db.session.query(Loaned_Devices).all()
     for device in devices:
         recipient = device.faculty_name
@@ -71,6 +71,14 @@ def Notify():
             subject = "Loan Reminder"
             msg = Message(subject, recipients=[recipient_email], body = message)
             mail.send(msg)
+
+def notifyWhenSubmitted(deviceLoan):
+    recipient = deviceLoan.faculty_name
+    recipient_email = deviceLoan.faculty_email
+    message = f"Thank you for choosing SCSU IT, a loan has been sumitted to you, and will be due on {deviceLoan.return_date}"
+    subject = 'A loan has been submitted'
+    msg = Message(subject, recipients=[recipient_email], body = message)
+    mail.send(msg)
 
 @app.route('/', methods=['GET','POST'])
 def go():
@@ -243,11 +251,13 @@ def schedule_reminders(return_date, teams_webhook_url):
     today = datetime.now().date()
 
     if today in {reminder_5_days, reminder_3_days, reminder_1_day}:  # Check if today is one of the reminder days
-        reminder_payload = create_reminder_payload(today, return_date)
-        send_webhook(reminder_payload, teams_webhook_url)
+        five_day_payload = create_five_day_payload(today, return_date)
+        three_day_payload = create_three_day_payload(today, return_date)
+        one_day_payload = create_one_day_payload(today, return_date)
+        send_webhook(five_day_payload, teams_webhook_url)
 
 
-def create_reminder_payload(today,return_date):
+def create_five_day_payload(today,return_date):
 
     reminder_text = f"Loan Return Date Reminder: {return_date.strftime('%Y-%m-%d')}. Today: {today.strftime('%Y-%m-%d')}"
     reminder_payload = {
@@ -307,12 +317,11 @@ def save_loan_data(data):
             faculty_name=data['faculty_name'],
             faculty_email=data['faculty_email']
         )
-        db.session.add(deviceLoan)
-        db.session.commit()
-        setDates()
-        Notify()
-        return redirect(url_for('home'))
-    return render_template('loan.html', form=form)
+    db.session.add(deviceLoan)
+    db.session.commit()
+    setDates()
+    notifyWhenSubmitted(deviceLoan)
+    return redirect(url_for('home'))
 
 @app.route('/identity', methods=['GET','POST'])
 def identity():
