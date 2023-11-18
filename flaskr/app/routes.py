@@ -3,6 +3,7 @@ from flask import render_template, redirect, url_for, request,flash
 from app.forms import LoginForm, RegisterForm, ResetForm, LoanForm
 from app.models import Users, Faculty, Department, Loaned_Devices
 import datetime,requests,os
+from datetime import datetime, timedelta
 from sqlalchemy.exc import IntegrityError
 from app import db, login
 from flask_login import login_user, logout_user, current_user, login_required
@@ -28,7 +29,7 @@ def getSomeLoanData():
 
 
 def setDates():
-    today = datetime.date.today()
+    today = datetime.today().date()
     devices = db.session.query(Loaned_Devices).all()
     for device in devices:
         date = device.return_date
@@ -126,7 +127,6 @@ def register():
     return render_template('register.html', form=form)
 
 
-
 @app.route('/home')
 @login_required
 def home():
@@ -134,20 +134,19 @@ def home():
     setDates()
     return render_template('home.html',loans=loans)
 
+
 @app.route('/logout')
 @login_required
 def logout():
     logout_user()
     return redirect(url_for('go'))
 
+
 @app.route('/loans', methods=['GET','POST'])
 @login_required
 def request_loan():
     form = LoanForm()
     if form.validate_on_submit():
-
-    
-
         data = {
         'barcode': form.barcode.data,
         'Equipment_Model': form.Equipment_Model.data,
@@ -156,18 +155,31 @@ def request_loan():
         'return_date': form.return_date.data,
         'faculty_name': form.faculty_name.data,
         'faculty_email': form.faculty_email.data
-    
         }
-
+        
         teams_webhook_url = os.getenv('TEAMS_WEBHOOK_URL')
+        loan_payload = create_loan_payload(data)
         
+        if send_webhook(loan_payload, teams_webhook_url):
+            flash('Loan Submitted Successfully Teams Notification Sent', 'success')
+            print("Webhook Success: Teams Notification Sent")
+            save_loan_data(data)
+            schedule_reminders(data['return_date'],teams_webhook_url)
+        else:
+            flash('Loan Submitted Successfully Teams Notification Failed', 'warning')
+            print("Webhook Error: Teams Notification Failed")
         
-        body_content = [
+        return redirect(url_for('home'))
+    return render_template('loan.html', form=form) 
+        
+def create_loan_payload(data):
+    
+    body_content = [
             {"type": "TextBlock", "text": f"{key}: {data[key]}"}
             for key in data.keys()
         ]
 
-        loan_payload = {
+    return {
             "type": "message",
             "attachments": [
                 {
@@ -192,33 +204,48 @@ def request_loan():
         }
 
 
-        if send_webhook(loan_payload, teams_webhook_url):
-            flash('Loan Submitted Successfully Teams Notification Sent', 'success')
-            print("Webhook Success: Teams Notification Sent")
-        else:
-            flash('Loan Submitted Successfully Teams Notification Failed', 'warning')
-            print("Webhook Error: Teams Notification Failed")
+def schedule_reminders(return_date, teams_webhook_url):
+    reminder_5_days = return_date - timedelta(days=5)
+    reminder_3_days = return_date - timedelta(days=3)
+    reminder_1_day = return_date - timedelta(days=1)
 
-        
-        deviceLoan = Loaned_Devices(
-            barcode=data['barcode'],
-            Equipment_Model=data['Equipment_Model'],
-            Equipment_Type=data['Equipment_Type'],
-            borrow_date=data['borrow_date'],
-            return_date=data['return_date'],
-            faculty_name=data['faculty_name'],
-            faculty_email=data['faculty_email']
-        )
-        db.session.add(deviceLoan)
-        db.session.commit()
-        setDates()
-        
-        return redirect(url_for('home'))
-    return render_template('loan.html', form=form)
+    today = datetime.now().date()
+
+    if today in {reminder_5_days, reminder_3_days, reminder_1_day}:  # Check if today is one of the reminder days
+        reminder_payload = create_reminder_payload(today, return_date)
+        send_webhook(reminder_payload, teams_webhook_url)
+
+
+def create_reminder_payload(today,return_date):
+
+    reminder_text = f"Loan Return Date Reminder: {return_date.strftime('%Y-%m-%d')}. Today: {today.strftime('%Y-%m-%d')}"
+    reminder_payload = {
+        "type": "message",
+        "attachments": [
+            {
+                "contentType": "application/vnd.microsoft.card.adaptive",
+                "content": {
+                    "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+                    "type": "AdaptiveCard",
+                    "body": [
+                        {
+                            "type": "TextBlock",
+                            "text": reminder_text,
+                            "size": "medium",
+                            "weight": "bolder"
+                        }
+                    ]
+                }
+            }
+        ]
+    }
+    return reminder_payload
     
 
 def send_webhook(payload, teams_webhook_url):
+    
     try:
+
         headers = {'Content-Type': 'application/json'}
 
         response = requests.post(teams_webhook_url,
@@ -237,3 +264,18 @@ def send_webhook(payload, teams_webhook_url):
     except Exception as e:
         print(f"Webhook Error: {str(e)}")
         return False
+
+def save_loan_data(data):    
+    
+    deviceLoan = Loaned_Devices(
+            barcode=data['barcode'],
+            Equipment_Model=data['Equipment_Model'],
+            Equipment_Type=data['Equipment_Type'],
+            borrow_date=data['borrow_date'],
+            return_date=data['return_date'],
+            faculty_name=data['faculty_name'],
+            faculty_email=data['faculty_email']
+        )
+    db.session.add(deviceLoan)
+    db.session.commit()
+       
