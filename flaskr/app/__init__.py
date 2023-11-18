@@ -44,9 +44,9 @@ app.config.update(
         MAIL_PORT = 465,
         MAIL_USE_TLS = False,
         MAIL_USE_SSL = True, 
-        MAIL_USERNAME = 'ij4.cheung@gmail.com',
-        MAIL_PASSWORD = environ.get('MAIL_PASSWORD'),
-        MAIL_DEFAULT_SENDER = ('Ian Cheung', 'ij4.cheung@gmail.com'),
+        MAIL_USERNAME = 'velocit.notifiers@gmail.com',
+        MAIL_PASSWORD = '$cott2x4',
+        MAIL_DEFAULT_SENDER = ('test', 'velocit.notifiers@gmail.com'),
         SECRET_KEY = 'abc')
 
 from app import routes

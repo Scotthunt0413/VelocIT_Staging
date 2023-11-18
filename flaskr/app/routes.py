@@ -54,9 +54,9 @@ def sendEmails():
         date = device.return_date
         if date < today-datetime.timedelta(days=1):
             print("One Day Overdue")
-        if date < today-datetime.timedelta(days=3):
+        elif date < today-datetime.timedelta(days=3):
             print("Three Days Overdue")
-        if date < today-datetime.timedelta(days=5):
+        else:
             print("Five Days Overdue")
 
 @app.route('/', methods=['GET','POST'])
@@ -114,6 +114,7 @@ def register():
 def home():
     loans = getAllLoanData()
     setDates()
+    sendEmails()
     return render_template('home.html',loans=loans)
 
 @app.route('/logout')
