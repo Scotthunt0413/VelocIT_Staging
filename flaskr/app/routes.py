@@ -51,18 +51,25 @@ def Notify():
     devices = db.session.query(Loaned_Devices).all()
     for device in devices:
         recipient = device.faculty_name
+        recipient_email = device.faculty_email
         date = device.return_date
         datediff = (date-today).days
         #print("Datediff: ",datediff)
+        days = ""
         if datediff < 0:
             print("overdue")
         else:
             if datediff == 1:
-                print("One Day Overdue")
+                days = "one"
             elif datediff == 3:
-                print("Three Days Overdue")
+                days = "three"
             elif datediff == 5:
-                print("Five Days Overdue")
+                days = 'five'
+        if days:
+            message = f"Hi, {recipient}. \n This is a reminder that your loan is due in {days} days. Please make sure to return it on time. \n Thanks, IT"
+            subject = "Loan Reminder"
+            msg = Message(subject, recipients=[recipient_email], body = message)
+            mail.send(msg)
 
 @app.route('/', methods=['GET','POST'])
 def go():
@@ -119,7 +126,7 @@ def register():
 def home():
     loans = getAllLoanData()
     setDates()
-    sendEmails()
+    Notify()
     return render_template('home.html',loans=loans)
 
 @app.route('/logout')
@@ -206,7 +213,7 @@ def request_loan():
         db.session.add(deviceLoan)
         db.session.commit()
         setDates()
-        sendEmails()
+        Notify()
         return redirect(url_for('home'))
     return render_template('loan.html', form=form)
 
