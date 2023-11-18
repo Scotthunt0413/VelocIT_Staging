@@ -2,6 +2,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, IntegerField, PasswordField, SubmitField, TextAreaField, DateField, RadioField, RadioField, BooleanField, SelectField, SelectMultipleField,EmailField
 from wtforms.validators import DataRequired, StopValidation
 from wtforms.widgets import CheckboxInput, ListWidget
+from datetime import datetime
 
 # This is the Registration form for the IT Department Users
 
@@ -32,14 +33,13 @@ class ResetForm(FlaskForm):
 
 
 
-#WE will need to readdress the loan form we want to start the login process first 
+
 class LoanForm(FlaskForm):
-   barcode = StringField('Barcode: ',validators=[DataRequired()])
-   model = StringField('Equipment Model: ',validators=[DataRequired()])
-   type = StringField('Equipment Type: ',validators=[DataRequired()])
-   return_date = DateField('When will this loan be due? ',validators=[DataRequired()])
-   takeout_date = DateField('When was this loan taken out? ',validators=[DataRequired()])
-   faculty_name = StringField('Faculty Name: ',validators=[DataRequired()])
-   facultyLocation = StringField('Faculty Location',validators=[DataRequired()])
-   facultyEmail = EmailField('Faculty Email: ',validators=[DataRequired()])
-   submit = SubmitField('Record Loan')
+    barcode = StringField('Barcode', validators=[DataRequired()])
+    Equipment_Model = StringField('Equipment Model', validators=[DataRequired()])
+    Equipment_Type = StringField('Equipment Type', validators=[DataRequired()])
+    borrow_date = DateField('Borrow Date', validators=[DataRequired()])
+    return_date = DateField('Return Date', validators=[DataRequired()])
+    faculty_name = StringField('Faculty Name', validators=[DataRequired()])
+    faculty_email = StringField('Faculty Email', validators=[DataRequired()])
+    submit = SubmitField('Record Loan')

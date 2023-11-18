@@ -11,28 +11,37 @@
             {{ form.hidden_tag() }}
             <p>
                 {{form.barcode.label}}
-                {{form.barcode}}
+                {{form.barcode()}}
             </p>
             <p>
-                {{form.model.label}}
-                {{form.model}}
+                {{form.Equipment_Model.data}}
+                {{form.Equipment_Model()}}
             </p>
             <p>
-                {{form.type.label}}
-                {{form.type}}
+                {{form.Equipment_Type.label}}
+                {{form.Equipment_Type()}}
+
             </p>
             <p>
-                {{form.loan_in_date.label}}
-                {{form.loan_in_date}}
+                {{form.borrow_date.label}}
+                {{form.borrow_date()}}
+
             </p>
+           
             <p>
-                {{form.loan_date_out.label}}
-                {{form.loan_date_out}}
+                {{form.return_date.label}}
+                {{form.return_date()}}
             </p>
+
             <p>
                 {{form.faculty_name.label}}
-                {{form.faculty_name}}
+                {{form.faculty_name()}}
             </p>
+            <p>
+                {{form.faculty_email.label}}
+                {{form.faculty_email()}}
+            </p>
+
             {{form.submit}}
         </form>
     </body>

@@ -8,7 +8,6 @@ from sqlalchemy import Column, ForeignKey, Integer, Table
 class Users(UserMixin, db.Model):
     __tablename__ = 'Users'
     id = db.Column(db.Integer, primary_key=True)
-
     First_Name = db.Column(db.String(32), unique=False, nullable=False)
     Last_Name = db.Column(db.String(64), unique=True, nullable=False)
     Univ_ID = db.Column(db.String(10), unique=True, nullable=False)
@@ -36,16 +35,15 @@ class Department(db.Model):
     Room_Number = db.Column(db.Integer, unique=True, nullable=False)
 
 class Loaned_Devices(db.Model):
-    __tablename__ = 'Loaned_Devices'
-    loan_ID = db.Column(db.Integer, unique = True, nullable=False, primary_key=True)
-    barcode = db.Column(db.String(10), unique=True, nullable=False)
-    model = db.Column(db.String(255), nullable=False)
-    type = db.Column(db.String(255), nullable=False)
-    loan_in_date = db.Column(db.DATE, unique=False, nullable=False)
-    loan_date_out = db.Column(db.DATE, unique=False, nullable=False)
-    facultyname= db.Column(db.String(255), nullable=False)
-    facultyLocation = db.Column(db.String(255), nullable=False)
-    facultyEmail = db.Column(db.String(255), nullable=False)
+    __tablename__ = 'loaned_devices'
+    loan_ID = db.Column(db.Integer, unique=True, primary_key=True)
+    barcode = db.Column(db.String(20), nullable=False)
+    Equipment_Model = db.Column(db.String(100), nullable=False)
+    Equipment_Type = db.Column(db.String(100), nullable=False)
+    borrow_date = db.Column(db.Date, nullable=False)
+    return_date = db.Column(db.Date, nullable=False)
+    faculty_name = db.Column(db.String(100), nullable=False)
+    faculty_email = db.Column(db.String(100), nullable=False)
     loan_status = db.Column(db.String(255),nullable=True)
     
 @login.user_loader
