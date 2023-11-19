@@ -47,3 +47,10 @@ class LoanForm(FlaskForm):
     faculty_name = StringField('Faculty Name', validators=[DataRequired()])
     faculty_email = StringField('Faculty Email', validators=[DataRequired()])
     submit = SubmitField('Record Loan')
+    
+class ReturnForm(FlaskForm):
+    barcode = StringField('Barcode', validators=[DataRequired()])
+    return_date = DateField('Return Date', validators=[DataRequired()])
+    faculty_name = StringField('Faculty Name', validators=[DataRequired()])
+    faculty_email = StringField('Faculty Email', validators=[DataRequired()])
+    submit = SubmitField('Return Loan')

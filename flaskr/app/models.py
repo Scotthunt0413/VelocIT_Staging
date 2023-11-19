@@ -3,6 +3,7 @@ from flask_login import UserMixin
 from sqlalchemy.orm import declarative_base, relationship
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy import Column, ForeignKey, Integer, Table
+from datetime import datetime
 
 # Define the DB Schema
 class Users(UserMixin, db.Model):
@@ -45,6 +46,12 @@ class Loaned_Devices(db.Model):
     faculty_name = db.Column(db.String(100), nullable=False)
     faculty_email = db.Column(db.String(100), nullable=False)
     loan_status = db.Column(db.String(255),nullable=True)
+    returned = db.Column(db.Boolean, default=False) 
+    
+    def return_loan(self):
+        self.returned = True
+        self.return_date = datetime.today().date()
+
     
 @login.user_loader
 def load_user(id):

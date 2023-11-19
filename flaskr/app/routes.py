@@ -1,7 +1,7 @@
 import logging
 from app import app
 from flask import flash, render_template, redirect, url_for, request,current_app,session
-from app.forms import LoginForm, RegisterForm, ResetForm, LoanForm, ResetPassword, ResetForm
+from app.forms import LoginForm, RegisterForm, ResetForm, LoanForm, ResetPassword, ResetForm, ReturnForm
 from app.models import Users, Faculty, Department, Loaned_Devices
 import datetime,requests,os
 from datetime import datetime, timedelta
@@ -171,7 +171,7 @@ def register():
 def home():
     loans = getAllLoanData()
     setDates()
-    Notify()
+    #Notify()
     return render_template('home.html',loans=loans)
 
 
@@ -186,30 +186,52 @@ def logout():
 @login_required
 def request_loan():
     form = LoanForm()
+    existing_loan = Loaned_Devices.query.all()
+    existing_barcode = [data.barcode for data in existing_loan]
+    existing_email = [data.faculty_email for data in existing_loan]
+    
     if form.validate_on_submit():
-        data = {
-        'barcode': form.barcode.data,
-        'Equipment_Model': form.Equipment_Model.data,
-        'Equipment_Type': form.Equipment_Type.data,
-        'borrow_date': form.borrow_date.data,
-        'return_date': form.return_date.data,
-        'faculty_name': form.faculty_name.data,
-        'faculty_email': form.faculty_email.data
-        }
-        
-        teams_webhook_url = os.getenv('TEAMS_WEBHOOK_URL')
-        loan_payload = create_loan_payload(data)
-        
-        if send_webhook(loan_payload, teams_webhook_url):
-            flash('Loan Submitted Successfully Teams Notification Sent', 'success')
-            print("Webhook Success: Teams Notification Sent")
-            save_loan_data(data)
-            schedule_reminders(data['return_date'],teams_webhook_url)
-        else:
-            flash('Loan Submitted Successfully Teams Notification Failed', 'warning')
-            print("Webhook Error: Teams Notification Failed")
-        
-
+        try:
+            
+            existing_loan = Loaned_Devices.query.filter(
+                (Loaned_Devices.barcode == form.barcode.data) | (Loaned_Devices.faculty_email == form.faculty_email.data)
+            ).first()
+            
+            if existing_loan:
+                flash('Barcode or Faculty Email already exists.', 'danger')
+                return render_template('loan.html', form=form, existing_barcode=existing_barcode, existing_email=existing_email)
+            
+            data = {
+            'barcode': form.barcode.data,
+            'Equipment_Model': form.Equipment_Model.data,
+            'Equipment_Type': form.Equipment_Type.data,
+            'borrow_date': form.borrow_date.data,
+            'return_date': form.return_date.data,
+            'faculty_name': form.faculty_name.data,
+            'faculty_email': form.faculty_email.data
+            }
+            
+            teams_webhook_url = os.getenv('TEAMS_WEBHOOK_URL')
+            loan_payload = create_loan_payload(data)
+            
+            if send_webhook(loan_payload, teams_webhook_url):
+                flash('Loan Submitted Successfully Teams Notification Sent', 'success')
+                print("Webhook Success: Teams Notification Sent")
+                save_loan_data(data)
+                schedule_reminders(data['return_date'],teams_webhook_url)
+                return redirect(url_for('home'))  
+            else:
+                flash('Loan Submitted Successfully Teams Notification Failed', 'warning')
+                print("Webhook Error: Teams Notification Failed")
+            
+        except IntegrityError as e:
+            db.session.rollback()
+            if "UNIQUE constraint failed" in str(e):
+                flash('Error: This username or University ID is already in use.', 'danger')
+            else:
+                flash('An unexpected error occurred. Please try again.', 'danger')
+                
+             
     return render_template('loan.html', form=form) 
         
 def create_loan_payload(data):
@@ -244,6 +266,7 @@ def create_loan_payload(data):
         }
 
 
+
 def schedule_reminders(return_date, teams_webhook_url):
     try:
         if request.path != '/home':
@@ -260,8 +283,7 @@ def schedule_reminders(return_date, teams_webhook_url):
                 reminder_text = f"Loan is due today. Please return at your convenience."
                 
             reminder_payload = create_payload(reminder_text)
-            send_webhook(reminder_payload, teams_webhook_url)
-    
+            send_webhook(reminder_payload, teams_webhook_url)   
     except Exception as e:
         logging.error(f"Error in schedule_reminders: {str(e)}")
         print(f"Error in schedule_reminders: {str(e)}")
@@ -296,16 +318,6 @@ def create_payload(reminder_text):
     
 
 
-
-
-
-
-
-
-
-
-
-
 def send_webhook(payload, teams_webhook_url):
     
     try:
@@ -330,7 +342,6 @@ def send_webhook(payload, teams_webhook_url):
         return False
 
 def save_loan_data(data):    
-    
     deviceLoan = Loaned_Devices(
             barcode=data['barcode'],
             Equipment_Model=data['Equipment_Model'],
@@ -345,6 +356,31 @@ def save_loan_data(data):
     setDates()
     notifyWhenSubmitted(deviceLoan)
     return redirect(url_for('home'))
+
+@app.route('/return', methods=['GET','POST'])
+@login_required
+def return_loan():
+    form = ReturnForm()
+    existing_loan = Loaned_Devices.query.all()
+
+    if request.method == 'POST':
+        barcode = request.form.get('barcode')  
+        loan = Loaned_Devices.query.filter_by(barcode=barcode).first()
+
+        if loan:
+            loan.returned = True
+            loan.return_date = datetime.today().date()
+            db.session.delete(loan)
+            db.session.commit()
+            flash('Loan returned successfully', 'success')
+            return redirect(url_for('home'))  
+        else:
+            flash('Loan not found', 'error')
+            return render_template('return.html',form=form)
+    return render_template('return.html',form=form) 
+    
+
+
 
 @app.route('/identity', methods=['GET','POST'])
 def identity():
