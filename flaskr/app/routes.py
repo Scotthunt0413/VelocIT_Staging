@@ -1,3 +1,4 @@
+import logging
 from app import app
 from flask import flash, render_template, redirect, url_for, request,current_app,session
 from app.forms import LoginForm, RegisterForm, ResetForm, LoanForm, ResetPassword, ResetForm
@@ -208,7 +209,7 @@ def request_loan():
             flash('Loan Submitted Successfully Teams Notification Failed', 'warning')
             print("Webhook Error: Teams Notification Failed")
         
-        return redirect(url_for('home'))
+
     return render_template('loan.html', form=form) 
         
 def create_loan_payload(data):
@@ -244,22 +245,33 @@ def create_loan_payload(data):
 
 
 def schedule_reminders(return_date, teams_webhook_url):
-    reminder_5_days = return_date - timedelta(days=5)
-    reminder_3_days = return_date - timedelta(days=3)
-    reminder_1_day = return_date - timedelta(days=1)
+    try:
+        if request.path != '/home':
+            today = datetime.now().date()
+            days_left = (return_date - today).days
+            
+            if days_left == 1:
+                reminder_text = f"One day remaining on your loan: Due on {return_date.strftime('%Y-%m-%d')}."
+            elif days_left == 3:
+                reminder_text = f"Three days remaining on your loan: Due on {return_date.strftime('%Y-%m-%d')}."
+            elif days_left == 5:
+                reminder_text = f"Five days remaining on your loan: Due on {return_date.strftime('%Y-%m-%d')}."
+            else:
+                reminder_text = f"Loan is due today. Please return at your convenience."
+                
+            reminder_payload = create_payload(reminder_text)
+            send_webhook(reminder_payload, teams_webhook_url)
+    
+    except Exception as e:
+        logging.error(f"Error in schedule_reminders: {str(e)}")
+        print(f"Error in schedule_reminders: {str(e)}")
 
-    today = datetime.now().date()
-
-    if today in {reminder_5_days, reminder_3_days, reminder_1_day}:  # Check if today is one of the reminder days
-        five_day_payload = create_five_day_payload(today, return_date)
-        three_day_payload = create_three_day_payload(today, return_date)
-        one_day_payload = create_one_day_payload(today, return_date)
-        send_webhook(five_day_payload, teams_webhook_url)
 
 
-def create_five_day_payload(today,return_date):
+def create_payload(reminder_text):
+    
 
-    reminder_text = f"Loan Return Date Reminder: {return_date.strftime('%Y-%m-%d')}. Today: {today.strftime('%Y-%m-%d')}"
+    
     reminder_payload = {
         "type": "message",
         "attachments": [
@@ -282,6 +294,17 @@ def create_five_day_payload(today,return_date):
     }
     return reminder_payload
     
+
+
+
+
+
+
+
+
+
+
+
 
 def send_webhook(payload, teams_webhook_url):
     
