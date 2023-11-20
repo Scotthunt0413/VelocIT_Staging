@@ -238,7 +238,7 @@ def create_loan_payload(data):
     
     body_content = [
             {"type": "TextBlock", "text": f"{key}: {data[key]}"}
-            for key in data.keys()
+            for key in Loaned_Devices.()
         ]
 
     return {
@@ -264,7 +264,6 @@ def create_loan_payload(data):
                 }
             ]
         }
-
 
 
 def schedule_reminders(return_date, teams_webhook_url):
@@ -357,6 +356,12 @@ def save_loan_data(data):
     notifyWhenSubmitted(deviceLoan)
     return redirect(url_for('home'))
 
+
+
+
+
+
+
 @app.route('/return', methods=['GET','POST'])
 @login_required
 def return_loan():
@@ -373,12 +378,58 @@ def return_loan():
             db.session.delete(loan)
             db.session.commit()
             flash('Loan returned successfully', 'success')
+            create_loan_payload(loan)
             return redirect(url_for('home'))  
         else:
             flash('Loan not found', 'error')
             return render_template('return.html',form=form)
     return render_template('return.html',form=form) 
     
+
+def send_loan_return_notification(return_payload):
+    # Send webhook
+    create_return_payload(return_payload)
+
+    # Prepare email content and send email
+  
+    
+  
+
+
+def create_return_payload(data):
+
+
+    return_payload = {
+            "type": "message",
+            "attachments": [
+                {
+                    "contentType": "application/vnd.microsoft.card.adaptive",
+                    "content": {
+                        "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+                        "type": "AdaptiveCard",
+                        "body": [
+
+                            {
+                                "type": "TextBlock",
+                                "text": "Loan Request Notification",
+                                "weight":"bolder",
+                                "size" : "large"
+                    
+                            },
+                            *body_content
+                        ]
+                    }
+                }
+            ]
+        }
+
+    return return_payload
+
+
+
+
+
+
 
 
 
