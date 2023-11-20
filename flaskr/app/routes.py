@@ -238,7 +238,7 @@ def create_loan_payload(data):
     
     body_content = [
             {"type": "TextBlock", "text": f"{key}: {data[key]}"}
-            for key in Loaned_Devices.()
+            for key in data.keys()
         ]
 
     return {
@@ -398,6 +398,10 @@ def send_loan_return_notification(return_payload):
 
 def create_return_payload(data):
 
+    body_content = [
+            {"type": "TextBlock", "text": f"{key}: {data[key]}"}
+            for key in data.keys()
+        ]
 
     return_payload = {
             "type": "message",
