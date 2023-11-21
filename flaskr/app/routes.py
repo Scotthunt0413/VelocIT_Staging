@@ -188,18 +188,18 @@ def request_loan():
     form = LoanForm()
     existing_loan = Loaned_Devices.query.all()
     existing_barcode = [data.barcode for data in existing_loan]
-    existing_email = [data.faculty_email for data in existing_loan]
+
     
     if form.validate_on_submit():
         try:
             
             existing_loan = Loaned_Devices.query.filter(
-                (Loaned_Devices.barcode == form.barcode.data) | (Loaned_Devices.faculty_email == form.faculty_email.data)
+                (Loaned_Devices.barcode == form.barcode.data) 
             ).first()
             
             if existing_loan:
                 flash('Barcode or Faculty Email already exists.', 'danger')
-                return render_template('loan.html', form=form, existing_barcode=existing_barcode, existing_email=existing_email)
+                return render_template('loan.html', form=form, existing_barcode=existing_barcode)
             
             data = {
             'barcode': form.barcode.data,
