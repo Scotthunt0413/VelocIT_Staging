@@ -236,36 +236,38 @@ def request_loan():
         
 def create_loan_payload(data):
     
+    all_loans = Loaned_Devices.query.all()
+    attribute_names = ['barcode', 'Equipment_Model', 'Equipment_Type', 'borrow_date', 'return_date', 'faculty_name', 'faculty_email']
     body_content = [
-            {"type": "TextBlock", "text": f"{key}: {data[key]}"}
-            for key in Loaned_Devices.query.all()
-        ]
-
-    return {
-            "type": "message",
-            "attachments": [
-                {
-                    "contentType": "application/vnd.microsoft.card.adaptive",
-                    "content": {
-                        "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
-                        "type": "AdaptiveCard",
-                        "body": [
-
-                            {
-                                "type": "TextBlock",
-                                "text": "Loan Request Notification",
-                                "weight":"bolder",
-                                "size" : "large"
-                    
-                            },
-                            *body_content
-                        ]
-                    }
-                }
-            ]
+        {
+            "type": "TextBlock",
+            "text": f"{attr}: {getattr(loan, attr)}"
         }
-
-
+        for loan in all_loans
+        for attr in attribute_names
+    ]
+    payload = {
+        "type": "message",
+        "attachments": [
+            {
+                "contentType": "application/vnd.microsoft.card.adaptive",
+                "content": {
+                    "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+                    "type": "AdaptiveCard",
+                    "body": [
+                        {
+                            "type": "TextBlock",
+                            "text": "Loan Request Notification",
+                            "weight": "bolder",
+                            "size": "large"
+                        },
+                        *body_content
+                    ]
+                }
+            }
+        ]
+    }
+    return payload
 def schedule_reminders(return_date, teams_webhook_url):
     try:
         if request.path != '/home':
@@ -398,10 +400,7 @@ def send_loan_return_notification(return_payload):
 
 def create_return_payload(data):
 
-    body_content = [
-            {"type": "TextBlock", "text": f"{key}: {data[key]}"}
-            for key in data.keys()
-        ]
+
 
     return_payload = {
             "type": "message",
