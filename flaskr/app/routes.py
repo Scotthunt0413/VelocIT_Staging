@@ -448,7 +448,7 @@ def identity():
         if form.Birth_Date.data != user.Birth_Date:
             msg = "\nIncorrect Birth Date"
             return render_template('verify_identity.html', form = form, msg = msg)
-        if form.Univ_ID.data != int(user.Univ_ID):
+        if form.Univ_ID.data != user.Univ_ID:
             msg = "\nIncorrect University ID"
             return render_template('verify_identity.html', form = form, msg = msg)
         if form.email.data != user.email:
