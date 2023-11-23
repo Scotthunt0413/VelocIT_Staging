@@ -10,35 +10,37 @@
         <form method="post">
             {{ form.hidden_tag() }}
             <p>
-                {{form.serial.label}}
+                <label for="{{form.serial.id}}">{{form.serial.label}}</label>
                 {{form.serial}}
             </p>
             <p>
-                {{form.barcode.label}}
+                <label for="{{form.barcode.id}}">{{form.barcode.label}}</label>
                 {{form.barcode}}
             </p>
             <p>
-                {{form.model.label}}
+                <label for="{{form.model.id}}">{{form.model.label}}</label>
                 {{form.model}}
             </p>
             <p>
-                {{form.type.label}}
+                <label for="{{form.type.id}}">{{form.type.label}}</label>
                 {{form.type}}
             </p>
             <p>
-                {{form.loan_in_date.label}}
+                <label for="{{form.loan_in_date.id}}">{{form.loan_in_date.label}}</label>
                 {{form.loan_in_date}}
             </p>
             <p>
-                {{form.loan_date_out.label}}
+                <label for="{{form.loan_date_out.id}}">{{form.loan_date_out.label}}</label>
                 {{form.loan_date_out}}
             </p>
             <p>
-                {{form.faculty_name.label}}
+                <label for="{{form.faculty_name.id}}">{{form.faculty_name.label}}</label>
                 {{form.faculty_name}}
             </p>
             {{form.submit}}
         </form>
     </body>
+    </html>
+    {% endblock %}
 </html>
 {% endblock %}
