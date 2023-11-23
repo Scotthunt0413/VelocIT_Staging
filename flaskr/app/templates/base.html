@@ -8,10 +8,12 @@
 
     <nav class="navbar">
         <div class="navbar-links">
-            <ul>
+            <ul class="menu">
                 {% if current_user.is_authenticated: %}
                 <li class="logo">
-                    <a href="#"> VelocIT </a>
+                    <a href="#">
+                        <img src="static/images/IT-logo.png">
+                    </a>
                 </li>
 
                 <li class="item">

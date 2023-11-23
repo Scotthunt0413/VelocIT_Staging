@@ -1,23 +1,5 @@
-*{
-    box-sizing: border-box;
-    padding: 0;
-    margin: 0;
+.navbar-brand img{
+    width: 15%;
+    height: 10%;
 }
 
-body{
-    font-family: 'Kantumruy', sans-serif;
-}
-
-nav{
-    background-color: #363636;
-    padding: 5px 20px;
-
-}
-
-ul{
-    list-style-type: none;
-}
-
-a{
-    color: white;
-}

@@ -49,7 +49,7 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%,-50%);
-    background: #363636;
+    background: #212529;
     padding: 50px 60px 70px;
     text-align: center;
 }
@@ -62,17 +62,7 @@
 
 }
 
-.form-box h1::after{
-    content:'';
-    width: 30px;
-    height: 4px;
-    border-radius: 3px;
-    background: white;
-    position: absolute;
-    bottom: -12%;
-    left: 50%;
-    transform: translatex(-50%);
-}
+
 
 .form-control {
     width: 100%;
