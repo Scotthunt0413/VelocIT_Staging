@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block content %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Loan Request</title>
+</head>
+<body class="container mt-5">
+    <p>{{ msg }}</p>
+        <div class="card-body">
+            <h2 class="text-center mb-4">Return Loan</h2>
+            <form method="post" class="needs-validation" novalidate>
+                {{ form.hidden_tag() }}
+                
+                <div class="mb-3">
+                    {{ form.barcode.label}}
+                    {{ form.barcode}}    
+                    {% for error in form.barcode.errors %}
+                        <div class="invalid-feedback">{{ error }}</div>
+                    {% endfor %}
+            
+                    {% if form.barcode.data in existing_loan %}
+                        <div class="invalid-feedback">This barcode is not on loan.</div>
+                    {% endif %}
+                </div>
+            
+                
+                <div class="mb-3">
+                    {{ form.return_date.label }}
+                    {{ form.return_date }}
+                    {% for error in form.return_date.errors %}
+                        <div class="invalid-feedback">Return Date is required</div>
+                    {% endfor %}
+                </div>
+
+                <div class="mb-3">
+                    {{ form.faculty_email.label }}
+                    {{ form.faculty_email }}   
+                    {% for error in form.faculty_email.errors %}
+                        <div class="invalid-feedback">Faculty email is required</div>
+                    {% endfor %}
+
+                    {% if form.faculty_email.data not in existing_email%}
+                        <div class="invalid-feedback">This email is already associated to a loan Please return device.</div>
+                    {% endif %}
+                </div>
+                {{form.submit}}
+
+
+
+            </form>
+    </div>
+</body>
+</html>
+{% endblock %}
