@@ -333,7 +333,7 @@ def return_loan():
             db.session.delete(loan)
             db.session.commit()
             flash('Loan returned successfully', 'success')
-            loan_return_payload = create_loan_return_payload(newdata)
+            loan_return_payload = create_loan_return_payload(loan)
             send_loan_return_notification(loan_return_payload, teams_webhook_url)
 
             return redirect(url_for('home'))  
@@ -343,14 +343,14 @@ def return_loan():
     return render_template('return.html',form=form) 
     
 
-def create_loan_return_payload(data):
+def create_loan_return_payload(loan):
     try:
         
-        faculty_name = data['faculty_name']
-        equipment_model = data['Equipment_Model']
-        return_date = data['return_date']
-        equipment_type = data['Equipment_Type']
-        faculty_email = data['faculty_email']
+        faculty_name = loan.faculty_name
+        equipment_model = loan.Equipment_Model
+        return_date = loan.return_date
+        equipment_type = loan.Equipment_Type
+        faculty_email = loan.faculty_email
         
 
 
