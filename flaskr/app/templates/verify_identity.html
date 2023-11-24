@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block content %}
+<body>
+    <p>Verify Your Identity to Reset Your Password</p>
+    <form method="post">
+        {% if msg is not none %}
+        {{msg}}
+        {% endif %}
+        {{ form.hidden_tag() }}
+        <p>
+            {{form.user_name.label}}
+            {{form.user_name}}
+        </p>
+        <p>
+            {{form.Univ_ID.label}}
+            {{form.Univ_ID}}
+        </p>
+        <p>
+            {{form.Birth_Date.label}}
+            {{form.Birth_Date}}
+        </p>
+        <p>
+            {{form.email.label}}
+            {{form.email}}
+        </p>
+        {{form.submit}}
+    </form>
+</body>
+{% endblock %}
