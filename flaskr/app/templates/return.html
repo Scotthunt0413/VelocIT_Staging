@@ -1,20 +1,23 @@
 {% extends "base.html" %}
 {% block content %}
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Loan Request</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
 </head>
 <body class="container mt-5">
-    <p>{{ msg }}</p>
+    <div class="card">
         <div class="card-body">
             <h2 class="text-center mb-4">Return Loan</h2>
             <form method="post" class="needs-validation" novalidate>
                 {{ form.hidden_tag() }}
                 
-                <div class="mb-3">
-                    {{ form.barcode.label}}
-                    {{ form.barcode}}    
+                <div class="form-group">
+                    <label for="{{ form.barcode.id }}">{{ form.barcode.label }}</label>
+                    {{ form.barcode }}
                     {% for error in form.barcode.errors %}
                         <div class="invalid-feedback">{{ error }}</div>
                     {% endfor %}
@@ -24,32 +27,33 @@
                     {% endif %}
                 </div>
             
-                
-                <div class="mb-3">
-                    {{ form.return_date.label }}
+                <div class="form-group">
+                    <label for="{{ form.return_date.id }}">{{ form.return_date.label }}</label>
                     {{ form.return_date }}
                     {% for error in form.return_date.errors %}
                         <div class="invalid-feedback">Return Date is required</div>
                     {% endfor %}
                 </div>
 
-                <div class="mb-3">
-                    {{ form.faculty_email.label }}
-                    {{ form.faculty_email }}   
+                <div class="form-group">
+                    <label for="{{ form.faculty_email.id }}">{{ form.faculty_email.label }}</label>
+                    {{ form.faculty_email }}
                     {% for error in form.faculty_email.errors %}
                         <div class="invalid-feedback">Faculty email is required</div>
                     {% endfor %}
 
-                    {% if form.faculty_email.data not in existing_email%}
-                        <div class="invalid-feedback">This email is already associated to a loan Please return device.</div>
+                    {% if form.faculty_email.data not in existing_email %}
+                        <div class="invalid-feedback">This email is already associated with a loan. Please return the device.</div>
                     {% endif %}
                 </div>
-                {{form.submit}}
-
-
-
+                
+                <button type="submit" class="btn btn-primary">{{ form.submit.label }}</button>
             </form>
+        </div>
     </div>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 </body>
 </html>
 {% endblock %}
