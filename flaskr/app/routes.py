@@ -81,6 +81,13 @@ def notifyWhenSubmitted(deviceLoan):
     msg = Message(subject, recipients=[recipient_email], body = message)
     mail.send(msg)
 
+def sendReturnEmail(loan):
+    recipient = loan.faculty_email
+    message = "Thank you for returning your device, and thank you for supporting the Southern Connecticut State University IT department."
+    subject = "Loan status: Returned thank you"
+    msg = Message(subject, recipients=[recipient], body=message)
+    mail.send(msg)
+
 @app.route('/', methods=['GET','POST'])
 def go():
     data = getSomeLoanData()
@@ -377,6 +384,7 @@ def return_loan():
             loan.return_date = datetime.today().date()
             db.session.delete(loan)
             db.session.commit()
+            sendReturnEmail(loan)
             flash('Loan returned successfully', 'success')
             create_loan_payload(loan)
             return redirect(url_for('home'))  
