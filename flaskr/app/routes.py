@@ -215,7 +215,7 @@ def request_loan():
             }
             
             teams_webhook_url = os.getenv('TEAMS_WEBHOOK_URL')
-            loan_payload = create_loan_payload(data,teams_webhook_url)
+            loan_payload = create_loan_submission_payload(data,teams_webhook_url)
             
             print(data)
 
@@ -224,7 +224,7 @@ def request_loan():
                 flash('Loan Submitted Successfully Teams Notification Sent', 'success')
                 print("Webhook Success: Teams Notification Sent")
                 save_loan_data(data)
-                create_loan_payload(data,teams_webhook_url)
+                create_loan_submission_payload(data,teams_webhook_url)
                 create_reminder_payload(data,teams_webhook_url)
                 
                 return redirect(url_for('home'))  
@@ -242,109 +242,116 @@ def request_loan():
              
     return render_template('loan.html', form=form) 
         
-def create_loan_payload(data,teams_webhook_url):
-    
-    loan_message = f"<h1> A New Loan has been submitted </h1> \
-                  <p>Equipment Model: {data['Equipment_Model']}</p> \
-                  <p>Equipment Type: {data['Equipment_Type']}</p> \
-                  <p>Borrow Date: {data['borrow_date']}</p> \
-                  <p>Return Date: {data['return_date']}</p> \
-                  <p>Faculty Name: {data['faculty_name']}</p> \
-                  <p>Faculty Email: {data['faculty_email']}</p>"
 
 
-    payload = {
-        "channel" : "#Equipment Loan Notifications",
-        "text" : loan_message
-    }
 
-    json_payload = json.dumps(payload)
-    
-    
-    response = requests.post(teams_webhook_url,
-        headers={'Content-Type': 'application/json'},
-        data=json_payload
-    )
-    
-    if response.status_code == 200:
-        print("Message sent successfully to Teams!")
-    else:
-        print(f"Failed to send message. Status code: {response.status_code}")
-    
-    
-def create_reminder_payload(data, teams_webhook_url):
+def create_loan_submission_payload(data):
     try:
-        
+        loan_message = f"<h1>A New Loan has been submitted</h1> \
+                        <p>Equipment Model: {data['Equipment_Model']}</p> \
+                        <p>Equipment Type: {data['Equipment_Type']}</p> \
+                        <p>Borrow Date: {data['borrow_date']}</p> \
+                        <p>Return Date: {data['return_date']}</p> \
+                        <p>Faculty Name: {data['faculty_name']}</p> \
+                        <p>Faculty Email: {data['faculty_email']}</p>"
+        return loan_message
+    except Exception as e:
+        print(f"Error creating loan submission payload: {str(e)}")
 
-        return_date = data['return_date']
+
+
+
+
+
+
+
+def send_loan_submission_notification(payload, teams_webhook_url):
+    try:
+        payload = {
+            "channel": "#Equipment Loan Notifications",
+            "text": payload
+        }
+        json_payload = json.dumps(payload)
+        response = requests.post(teams_webhook_url,
+                                 headers={'Content-Type': 'application/json'},
+                                 data=json_payload)
+        if response.status_code == 200:
+            print("Loan submission notification sent successfully to Teams!")
+        else:
+            print(f"Failed to send loan submission notification. Status code: {response.status_code}")
+    except Exception as e:
+        print(f"Error sending loan submission notification: {str(e)}")
+
+
+def create_loan_return_payload(data):
+    try:
+        return_date = datetime.datetime.strptime(data['return_date'], '%Y-%m-%d').date()
         faculty_name = data['faculty_name']
         equipment_model = data['Equipment_Model']
         equipment_type = data['Equipment_Type']
         faculty_email = data['faculty_email']
         
+        # Additional information related to loan return
+        # Assuming returned_date is today's date for the example
+        returned_date = datetime.date.today()
 
+        loan_return_message = f"<h1>Loan Return Notification for {faculty_name}</h1> \
+                            <p>Equipment Model: {equipment_model}</p> \
+                            <p>Equipment Type: {equipment_type}</p> \
+                            <p>Return Date: {return_date}</p> \
+                            <p>Returned Date: {returned_date}</p> \
+                            <p>Faculty Name: {faculty_name}</p> \
+                            <p>Faculty Email: {faculty_email}</p>"
         
-        today = datetime.date.today()
-        days_left = (return_date - today).days
-        reminder_message = f"<h1> A Reminder for loan assinged to {data['faculty_name']} </h1> \
-                        <p>Equipment Model: {equipment_model}</p> \
-                        <p>Equipment Type: {equipment_type}</p> \
-                        <p>Borrow Date: {data['borrow_date']}</p> \
-                        <p>Return Date: {return_date}</p> \
-                        <p>Faculty Name: {faculty_name}</p> \
-                        <p>Faculty Email: {faculty_email}</p>"
-
-    
-
-        reminder_payload = {
-            "channel" : "#Equipment Loan Notifications",
-            "text" : reminder_message
-        }
-
-        json_payload = json.dumps(reminder_payload)
-        
-
-        if days_left in [5,3,1]:
-            response = requests.post(teams_webhook_url,
-                headers={'Content-Type': 'application/json'},
-                data=json_payload
-            )
-            
-            if response.status_code == 200:
-                print("Message sent successfully to Teams!")
-            else:
-                print(f"Failed to send message. Status code: {response.status_code}")
-                
-
-        
+        return loan_return_message
     except Exception as e:
-        print(f"Error in creating reminder: {str(e)}")  
+        print(f"Error creating loan return payload: {str(e)}")
 
 
 
-def send_webhook(reminder_payload,payload, teams_webhook_url):
-    
+def send_loan_return_notification(payload, teams_webhook_url):
     try:
-
-        headers = {'Content-Type': 'application/json'}
-
+        payload = {
+            "channel": "#Equipment Loan Notifications",
+            "text": payload
+        }
+        
+        json_payload = json.dumps(payload)
+        
         response = requests.post(teams_webhook_url,
-                                 json=payload,
-                                 headers=headers)
+                                 headers={'Content-Type': 'application/json'},
+                                 data=json_payload)
         
         if response.status_code == 200:
-            print("Webhook Success: Teams Notification Sent")
-            print("Response Content:", response.content)  # Log the response content for further inspection
-            return True
+            print("Loan return notification sent successfully to Teams!")
         else:
-            print("Webhook Error: Teams Notification Failed")
-            print(reminder_payload)
-            print("Response Content:", response.content)  # Log the response content for further inspection
-            return False
-    
+            print(f"Failed to send loan return notification. Status code: {response.status_code}")
     except Exception as e:
-        print(f"Webhook Error: {str(e)}")
-        return False
+        print(f"Error sending loan return notification: {str(e)}")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 def save_loan_data(data):    
     deviceLoan = Loaned_Devices(
@@ -393,14 +400,7 @@ def return_loan():
     return render_template('return.html',form=form) 
     
 
-#def send_loan_return_notification(return_payload):
-    # Send webhook
-    #create_return_payload(return_payload)
 
-    # Prepare email content and send email
-  
-    
-  
 
 
 
