@@ -1,68 +1,27 @@
-body{
-    font-family: 'Kantumruy', sans-serif;
-}
-
-nav{
-    background-color: #363636;
-    padding: 5px 20px;
-   
-
-}
-
-.navbar a {
-    color: white;
-    text-decoration: none;
-    padding: 15px;
-    display: block;
-    text-align: center;
-    width: 100px;   /* Set a fixed width for the links */
-    box-sizing: border-box;     /* Include padding and border in the element's total width and height */
-}
-
-.navbar-links .item{
-    margin-right: 20px;
-}
-
-
-
-ul{
-    list-style-type: none;
-}
-
-.logo img{
-    width: 265%;
+.navbar-brand img{
+    width: 15%;
     height: 10%;
-
 }
 
-.item a{
-    text-decoration: none;
-    color: white;
+.sub-menu-wrap{
+    position: absolute;
+    top: 100%;
+    right: 10%;
+    width: 320px;
 }
 
-.item:hover a{
-    background-color: #d56348;
-    padding: 15px;
-
+.sub-menu{
+    background: #fff;
+    padding: 20px;
+    margin: 10px;
 }
 
-
-.menu li{
-    font-size: 16px;
-    padding: 15px 5px;
-
-}
-
-.menu li a{ 
-    display: block;
-
-}
-
-/* modile menu */
-
-.menu{
+.user-info{
     display: flex;
-    flex-wrap:  wrap;
-    justify-content: space-between;
     align-items: center;
+}
+
+.user-info h3{
+    font-weight: 500;
+    
 }
