@@ -215,22 +215,15 @@ def request_loan():
             }
             
             teams_webhook_url = os.getenv('TEAMS_WEBHOOK_URL')
-            loan_payload = create_loan_submission_payload(data,teams_webhook_url)
+            loan_payload = create_loan_submission_payload(data)
+            send_loan_submission_notification(loan_payload, teams_webhook_url)
+            save_loan_data(data)
             
-            print(data)
+
 
             
-            if send_webhook(loan_payload, teams_webhook_url):
-                flash('Loan Submitted Successfully Teams Notification Sent', 'success')
-                print("Webhook Success: Teams Notification Sent")
-                save_loan_data(data)
-                create_loan_submission_payload(data,teams_webhook_url)
-                create_reminder_payload(data,teams_webhook_url)
-                
-                return redirect(url_for('home'))  
-            else:
-                flash('Loan Submitted Successfully Teams Notification Failed', 'warning')
-                print("Webhook Error: Teams Notification Failed")
+            return redirect(url_for('home'))  
+        
             
         except IntegrityError as e:
             db.session.rollback()
@@ -242,8 +235,6 @@ def request_loan():
              
     return render_template('loan.html', form=form) 
         
-
-
 
 def create_loan_submission_payload(data):
     try:
@@ -257,12 +248,6 @@ def create_loan_submission_payload(data):
         return loan_message
     except Exception as e:
         print(f"Error creating loan submission payload: {str(e)}")
-
-
-
-
-
-
 
 
 def send_loan_submission_notification(payload, teams_webhook_url):
@@ -281,54 +266,6 @@ def send_loan_submission_notification(payload, teams_webhook_url):
             print(f"Failed to send loan submission notification. Status code: {response.status_code}")
     except Exception as e:
         print(f"Error sending loan submission notification: {str(e)}")
-
-
-def create_loan_return_payload(data):
-    try:
-        return_date = datetime.datetime.strptime(data['return_date'], '%Y-%m-%d').date()
-        faculty_name = data['faculty_name']
-        equipment_model = data['Equipment_Model']
-        equipment_type = data['Equipment_Type']
-        faculty_email = data['faculty_email']
-        
-        # Additional information related to loan return
-        # Assuming returned_date is today's date for the example
-        returned_date = datetime.date.today()
-
-        loan_return_message = f"<h1>Loan Return Notification for {faculty_name}</h1> \
-                            <p>Equipment Model: {equipment_model}</p> \
-                            <p>Equipment Type: {equipment_type}</p> \
-                            <p>Return Date: {return_date}</p> \
-                            <p>Returned Date: {returned_date}</p> \
-                            <p>Faculty Name: {faculty_name}</p> \
-                            <p>Faculty Email: {faculty_email}</p>"
-        
-        return loan_return_message
-    except Exception as e:
-        print(f"Error creating loan return payload: {str(e)}")
-
-
-
-def send_loan_return_notification(payload, teams_webhook_url):
-    try:
-        payload = {
-            "channel": "#Equipment Loan Notifications",
-            "text": payload
-        }
-        
-        json_payload = json.dumps(payload)
-        
-        response = requests.post(teams_webhook_url,
-                                 headers={'Content-Type': 'application/json'},
-                                 data=json_payload)
-        
-        if response.status_code == 200:
-            print("Loan return notification sent successfully to Teams!")
-        else:
-            print(f"Failed to send loan return notification. Status code: {response.status_code}")
-    except Exception as e:
-        print(f"Error sending loan return notification: {str(e)}")
-
 
 
 
@@ -377,7 +314,12 @@ def save_loan_data(data):
 
 @app.route('/return', methods=['GET','POST'])
 @login_required
+
+
+
+
 def return_loan():
+    teams_webhook_url = os.getenv('TEAMS_WEBHOOK_URL')
     form = ReturnForm()
     existing_loan = Loaned_Devices.query.all()
 
@@ -391,7 +333,8 @@ def return_loan():
             db.session.delete(loan)
             db.session.commit()
             flash('Loan returned successfully', 'success')
-            create_loan_payload(loan)
+            loan_return_payload = create_loan_return_payload(newdata)
+            send_loan_return_notification(loan_return_payload, teams_webhook_url)
 
             return redirect(url_for('home'))  
         else:
@@ -400,10 +343,49 @@ def return_loan():
     return render_template('return.html',form=form) 
     
 
+def create_loan_return_payload(data):
+    try:
+        
+        faculty_name = data['faculty_name']
+        equipment_model = data['Equipment_Model']
+        return_date = data['return_date']
+        equipment_type = data['Equipment_Type']
+        faculty_email = data['faculty_email']
+        
+
+
+        loan_return_message = f"<h1>Loan Return Notification for {faculty_name}</h1> \
+                            <p>Equipment Model: {equipment_model}</p> \
+                            <p>Equipment Type: {equipment_type}</p> \
+                            <p>Return Date: {return_date}</p> \
+                            <p>Faculty Name: {faculty_name}</p> \
+                            <p>Faculty Email: {faculty_email}</p>"
+        
+        return loan_return_message
+    except Exception as e:
+        print(f"Error creating loan return payload: {str(e)}")
 
 
 
-
+def send_loan_return_notification(payload, teams_webhook_url):
+    try:
+        payload = {
+            "channel": "#Equipment Loan Notifications",
+            "text": payload
+        }
+        
+        json_payload = json.dumps(payload)
+        
+        response = requests.post(teams_webhook_url,
+                                 headers={'Content-Type': 'application/json'},
+                                 data=json_payload)
+        
+        if response.status_code == 200:
+            print("Loan return notification sent successfully to Teams!")
+        else:
+            print(f"Failed to send loan return notification. Status code: {response.status_code}")
+    except Exception as e:
+        print(f"Error sending loan return notification: {str(e)}")
 
 
 
