@@ -1,3 +1,4 @@
+import json
 import logging
 from app import app
 from flask import flash, render_template, redirect, url_for, request,current_app,session
@@ -10,6 +11,9 @@ from app import db, login, mail, moment, bootstrap
 from flask_login import login_user, logout_user, current_user, login_required
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_mail import Mail, Message
+from os import environ
+
+
 
 login.login_view = "go"
 savedUser = None
@@ -211,14 +215,20 @@ def request_loan():
             'faculty_email': form.faculty_email.data
             }
             
-            teams_webhook_url = os.getenv('TEAMS_WEBHOOK_URL')
-            loan_payload = create_loan_payload(data)
+            teams_webhook_url = environ.get('TEAMS_WEBHOOK_URL')
+            print(teams_webhook_url)
+            loan_payload = create_loan_payload(data,teams_webhook_url)
+            
+            print(data)
+
             
             if send_webhook(loan_payload, teams_webhook_url):
                 flash('Loan Submitted Successfully Teams Notification Sent', 'success')
                 print("Webhook Success: Teams Notification Sent")
                 save_loan_data(data)
-                schedule_reminders(data['return_date'],teams_webhook_url)
+                create_loan_payload(data,teams_webhook_url)
+                create_reminder_payload(data,teams_webhook_url)
+                
                 return redirect(url_for('home'))  
             else:
                 flash('Loan Submitted Successfully Teams Notification Failed', 'warning')
@@ -234,92 +244,87 @@ def request_loan():
              
     return render_template('loan.html', form=form) 
         
-def create_loan_payload(data):
+def create_loan_payload(data,teams_webhook_url):
     
-    all_loans = Loaned_Devices.query.all()
-    attribute_names = ['barcode', 'Equipment_Model', 'Equipment_Type', 'borrow_date', 'return_date', 'faculty_name', 'faculty_email']
-    body_content = [
-        {
-            "type": "TextBlock",
-            "text": f"{attr}: {getattr(loan, attr)}"
-        }
-        for loan in all_loans
-        for attr in attribute_names
-    ]
+    loan_message = f"<h1> A New Loan has been submitted </h1> \
+                  <p>Equipment Model: {data['Equipment_Model']}</p> \
+                  <p>Equipment Type: {data['Equipment_Type']}</p> \
+                  <p>Borrow Date: {data['borrow_date']}</p> \
+                  <p>Return Date: {data['return_date']}</p> \
+                  <p>Faculty Name: {data['faculty_name']}</p> \
+                  <p>Faculty Email: {data['faculty_email']}</p>"
+
+
     payload = {
-        "type": "message",
-        "attachments": [
-            {
-                "contentType": "application/vnd.microsoft.card.adaptive",
-                "content": {
-                    "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
-                    "type": "AdaptiveCard",
-                    "body": [
-                        {
-                            "type": "TextBlock",
-                            "text": "Loan Request Notification",
-                            "weight": "bolder",
-                            "size": "large"
-                        },
-                        *body_content
-                    ]
-                }
-            }
-        ]
+        "channel" : "#Equipment Loan Notifications",
+        "text" : loan_message
     }
-    return payload
-def schedule_reminders(return_date, teams_webhook_url):
+
+    json_payload = json.dumps(payload)
+    
+    
+    response = requests.post(teams_webhook_url,
+        headers={'Content-Type': 'application/json'},
+        data=json_payload
+    )
+    
+    if response.status_code == 200:
+        print("Message sent successfully to Teams!")
+    else:
+        print(f"Failed to send message. Status code: {response.status_code}")
+    
+    
+def create_reminder_payload(data, teams_webhook_url):
     try:
-        if request.path != '/home':
-            today = datetime.now().date()
-            days_left = (return_date - today).days
+        
+
+        return_date = data['return_date']
+        faculty_name = data['faculty_name']
+        equipment_model = data['Equipment_Model']
+        equipment_type = data['Equipment_Type']
+        faculty_email = data['faculty_email']
+        
+
+        
+        today = datetime.date.today()
+        days_left = (return_date - today).days
+        reminder_message = f"<h1> A Reminder for loan assinged to {data['faculty_name']} </h1> \
+                        <p>Equipment Model: {equipment_model}</p> \
+                        <p>Equipment Type: {equipment_type}</p> \
+                        <p>Borrow Date: {data['borrow_date']}</p> \
+                        <p>Return Date: {return_date}</p> \
+                        <p>Faculty Name: {faculty_name}</p> \
+                        <p>Faculty Email: {faculty_email}</p>"
+
+    
+
+        reminder_payload = {
+            "channel" : "#Equipment Loan Notifications",
+            "text" : reminder_message
+        }
+
+        json_payload = json.dumps(reminder_payload)
+        
+
+        if days_left in [5,3,1]:
+            response = requests.post(teams_webhook_url,
+                headers={'Content-Type': 'application/json'},
+                data=json_payload
+            )
             
-            if days_left == 1:
-                reminder_text = f"One day remaining on your loan: Due on {return_date.strftime('%Y-%m-%d')}."
-            elif days_left == 3:
-                reminder_text = f"Three days remaining on your loan: Due on {return_date.strftime('%Y-%m-%d')}."
-            elif days_left == 5:
-                reminder_text = f"Five days remaining on your loan: Due on {return_date.strftime('%Y-%m-%d')}."
+            if response.status_code == 200:
+                print("Message sent successfully to Teams!")
             else:
-                reminder_text = f"Loan is due today. Please return at your convenience."
+                print(f"Failed to send message. Status code: {response.status_code}")
                 
-            reminder_payload = create_payload(reminder_text)
-            send_webhook(reminder_payload, teams_webhook_url)   
+
+        
     except Exception as e:
-        logging.error(f"Error in schedule_reminders: {str(e)}")
-        print(f"Error in schedule_reminders: {str(e)}")
+        print(f"Error in creating reminder: {str(e)}")  
 
 
 
-def create_payload(reminder_text):
-    
-
-    
-    reminder_payload = {
-        "type": "message",
-        "attachments": [
-            {
-                "contentType": "application/vnd.microsoft.card.adaptive",
-                "content": {
-                    "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
-                    "type": "AdaptiveCard",
-                    "body": [
-                        {
-                            "type": "TextBlock",
-                            "text": reminder_text,
-                            "size": "medium",
-                            "weight": "bolder"
-                        }
-                    ]
-                }
-            }
-        ]
-    }
-    return reminder_payload
-    
-
-
-def send_webhook(payload, teams_webhook_url):
+def send_webhook(reminder_payload,payload, teams_webhook_url):
     
     try:
 
@@ -335,6 +340,7 @@ def send_webhook(payload, teams_webhook_url):
             return True
         else:
             print("Webhook Error: Teams Notification Failed")
+            print(reminder_payload)
             print("Response Content:", response.content)  # Log the response content for further inspection
             return False
     
@@ -381,6 +387,7 @@ def return_loan():
             db.session.commit()
             flash('Loan returned successfully', 'success')
             create_loan_payload(loan)
+
             return redirect(url_for('home'))  
         else:
             flash('Loan not found', 'error')
@@ -388,45 +395,14 @@ def return_loan():
     return render_template('return.html',form=form) 
     
 
-def send_loan_return_notification(return_payload):
+#def send_loan_return_notification(return_payload):
     # Send webhook
-    create_return_payload(return_payload)
+    #create_return_payload(return_payload)
 
     # Prepare email content and send email
   
     
   
-
-
-def create_return_payload(data):
-
-
-
-    return_payload = {
-            "type": "message",
-            "attachments": [
-                {
-                    "contentType": "application/vnd.microsoft.card.adaptive",
-                    "content": {
-                        "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
-                        "type": "AdaptiveCard",
-                        "body": [
-
-                            {
-                                "type": "TextBlock",
-                                "text": "Loan Request Notification",
-                                "weight":"bolder",
-                                "size" : "large"
-                    
-                            },
-                            *body_content
-                        ]
-                    }
-                }
-            ]
-        }
-
-    return return_payload
 
 
 
