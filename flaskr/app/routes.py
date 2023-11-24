@@ -11,7 +11,6 @@ from app import db, login, mail, moment, bootstrap
 from flask_login import login_user, logout_user, current_user, login_required
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_mail import Mail, Message
-from os import environ
 
 
 
@@ -215,8 +214,7 @@ def request_loan():
             'faculty_email': form.faculty_email.data
             }
             
-            teams_webhook_url = environ.get('TEAMS_WEBHOOK_URL')
-            print(teams_webhook_url)
+            teams_webhook_url = os.getenv('TEAMS_WEBHOOK_URL')
             loan_payload = create_loan_payload(data,teams_webhook_url)
             
             print(data)
