@@ -10,7 +10,7 @@ class Users(UserMixin, db.Model):
     __tablename__ = 'Users'
     id = db.Column(db.Integer, primary_key=True)
     First_Name = db.Column(db.String(32), unique=False, nullable=False)
-    Last_Name = db.Column(db.String(64), unique=True, nullable=False)
+    Last_Name = db.Column(db.String(64), unique=False, nullable=False)
     Univ_ID = db.Column(db.String(10), unique=True, nullable=False)
     Birth_Date = db.Column(db.DATE, unique=False, nullable=False)
     email = db.Column(db.String(64), unique=True, nullable=False)
@@ -23,17 +23,6 @@ class Users(UserMixin, db.Model):
     def check_password(self, user_password):
         return check_password_hash(self.user_password, user_password)
     
-class Faculty(db.Model):
-    __tablename__ = 'Faculty'
-    Faculty_ID = db.Column(db.Integer, unique=True,nullable=False, primary_key=True)
-    faculty_name = db.Column(db.String(255), unique=True,nullable=False)
-    Department_ID = db.Column(db.Integer, unique=True, nullable=False)
-
-class Department(db.Model):
-    __tablename__ = 'Department'
-    Department_ID = db.Column(db.Integer, unique=True,nullable=False, primary_key=True)
-    Building = db.Column(db.String(255), unique=True,nullable=False)
-    Room_Number = db.Column(db.Integer, unique=True, nullable=False)
 
 class Loaned_Devices(db.Model):
     __tablename__ = 'loaned_devices'

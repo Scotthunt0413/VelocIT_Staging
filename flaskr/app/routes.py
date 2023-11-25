@@ -3,7 +3,7 @@ import logging
 from app import app
 from flask import flash, render_template, redirect, url_for, request,current_app,session
 from app.forms import LoginForm, RegisterForm, ResetForm, LoanForm, ResetPassword, ResetForm, ReturnForm
-from app.models import Users, Faculty, Department, Loaned_Devices
+from app.models import Users, Loaned_Devices
 import datetime,requests,os
 from datetime import datetime, timedelta
 from sqlalchemy.exc import IntegrityError
@@ -49,7 +49,6 @@ def setDates():
         else:
             db.session.query(Loaned_Devices).filter(Loaned_Devices.barcode == barcode).update({Loaned_Devices.loan_status: "not due"})
             db.session.commit()
-
 #starting mail functionality
 def Notify():
     today = datetime.today().date()
@@ -243,7 +242,6 @@ def request_loan():
     
     if form.validate_on_submit():
         try:
-            
             existing_loan = Loaned_Devices.query.filter(
                 (Loaned_Devices.barcode == form.barcode.data) 
             ).first()
@@ -316,8 +314,6 @@ def send_loan_submission_notification(payload, teams_webhook_url):
             print(f"Failed to send loan submission notification. Status code: {response.status_code}")
     except Exception as e:
         print(f"Error sending loan submission notification: {str(e)}")
-
-
 
 
 
