@@ -23,17 +23,6 @@ class Users(UserMixin, db.Model):
     def check_password(self, user_password):
         return check_password_hash(self.user_password, user_password)
     
-class Faculty(db.Model):
-    __tablename__ = 'Faculty'
-    Faculty_ID = db.Column(db.Integer, unique=True,nullable=False, primary_key=True)
-    faculty_name = db.Column(db.String(255), unique=True,nullable=False)
-    Department_ID = db.Column(db.Integer, unique=True, nullable=False)
-
-class Department(db.Model):
-    __tablename__ = 'Department'
-    Department_ID = db.Column(db.Integer, unique=True,nullable=False, primary_key=True)
-    Building = db.Column(db.String(255), unique=True,nullable=False)
-    Room_Number = db.Column(db.Integer, unique=True, nullable=False)
 
 class Loaned_Devices(db.Model):
     __tablename__ = 'loaned_devices'
