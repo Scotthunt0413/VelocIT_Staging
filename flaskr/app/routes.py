@@ -120,6 +120,21 @@ def send_loan_reminder_notification(payload, teams_webhook_url):
         print(f"Error sending loan reminder notification: {str(e)}")
 
         
+
+def sendReturnEmail(loan):
+    recipient = loan.faculty_email
+    message = "Thank you for returning your device, and thank you for supporting the Southern Connecticut State University IT department."
+    subject = "Loan status: Returned thank you"
+    msg = Message(subject, recipients=[recipient], body=message)
+    mail.send(msg)
+
+with app.app_context():
+    #Send loan reminders to Teams and email
+    loan_payload2 = Countdown()
+    teams_webhook_url = os.getenv('TEAMS_WEBHOOK_URL')
+    send_loan_reminder_notification(loan_payload2, teams_webhook_url)
+    Notify()
+
 @app.route('/', methods=['GET','POST'])
 def go():
     data = getSomeLoanData()
@@ -209,12 +224,12 @@ def register():
 @login_required
 def home():
     loans = getAllLoanData()
-    setDates()
-    #Send loan reminders to Teams and email
-    loan_payload2 = Countdown()
-    teams_webhook_url = os.getenv('TEAMS_WEBHOOK_URL')
-    send_loan_reminder_notification(loan_payload2, teams_webhook_url)
-    Notify()
+    # setDates()
+    # #Send loan reminders to Teams and email
+    # loan_payload2 = Countdown()
+    # teams_webhook_url = os.getenv('TEAMS_WEBHOOK_URL')
+    # send_loan_reminder_notification(loan_payload2, teams_webhook_url)
+    # Notify()
     return render_template('home.html',loans=loans)
 
 
@@ -374,6 +389,7 @@ def return_loan():
             loan.return_date = datetime.today().date()
             db.session.delete(loan)
             db.session.commit()
+            sendReturnEmail(loan)
             flash('Loan returned successfully', 'success')
             loan_return_payload = create_loan_return_payload(loan)
             send_loan_return_notification(loan_return_payload, teams_webhook_url)
@@ -445,7 +461,7 @@ def identity():
         if form.Birth_Date.data != user.Birth_Date:
             msg = "\nIncorrect Birth Date"
             return render_template('verify_identity.html', form = form, msg = msg)
-        if form.Univ_ID.data != int(user.Univ_ID):
+        if form.Univ_ID.data != user.Univ_ID:
             msg = "\nIncorrect University ID"
             return render_template('verify_identity.html', form = form, msg = msg)
         if form.email.data != user.email:
