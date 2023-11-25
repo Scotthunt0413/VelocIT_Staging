@@ -10,7 +10,7 @@ class Users(UserMixin, db.Model):
     __tablename__ = 'Users'
     id = db.Column(db.Integer, primary_key=True)
     First_Name = db.Column(db.String(32), unique=False, nullable=False)
-    Last_Name = db.Column(db.String(64), unique=True, nullable=False)
+    Last_Name = db.Column(db.String(64), unique=False, nullable=False)
     Univ_ID = db.Column(db.String(10), unique=True, nullable=False)
     Birth_Date = db.Column(db.DATE, unique=False, nullable=False)
     email = db.Column(db.String(64), unique=True, nullable=False)
