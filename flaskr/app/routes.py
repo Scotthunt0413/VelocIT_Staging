@@ -49,7 +49,6 @@ def setDates():
         else:
             db.session.query(Loaned_Devices).filter(Loaned_Devices.barcode == barcode).update({Loaned_Devices.loan_status: "not due"})
             db.session.commit()
-
 #starting mail functionality
 def Notify():
     today = datetime.today().date()
@@ -81,26 +80,26 @@ def notifyWhenSubmitted(deviceLoan):
     mail.send(msg)
 
 def Countdown():
-    today = datetime.today().date()
-    devices = db.session.query(Loaned_Devices).all()
-    for device in devices:
-        recipient = device.faculty_name
-        recipient_email = device.faculty_email
-        date = device.return_date
-        datediff = (date-today).days
-        days = ""
-        if datediff == 1:
-                days = "one"
-        elif datediff == 3:
-                days = "three"
-        elif datediff == 5:
-                days = 'five'
     try:
-        loan_return_message = f"<h1>Reminder for {recipient}</h1> \
-        <p>Your loan is due in {days} days</p>"
-        return loan_return_message
+        today = datetime.today().date()
+        devices = db.session.query(Loaned_Devices).all()
+        for device in devices:
+            recipient = device.faculty_name
+            recipient_email = device.faculty_email
+            date = device.return_date
+            datediff = (date-today).days
+            days = ""
+            if datediff == 1:
+                    days = "one"
+            elif datediff == 3:
+                    days = "three"
+            elif datediff == 5:
+                    days = 'five'
+            loan_return_message = f"<h1>Reminder for {recipient}</h1> \
+            <p>Your loan is due in {days} days</p>"
+            return loan_return_message
     except Exception as e:
-        print(f"Error creating loan submission payload: {str(e)}")
+            print(f"Error creating loan submission payload: {str(e)}")
         
 def send_loan_reminder_notification(payload, teams_webhook_url):
     try:
@@ -127,13 +126,6 @@ def sendReturnEmail(loan):
     subject = "Loan status: Returned thank you"
     msg = Message(subject, recipients=[recipient], body=message)
     mail.send(msg)
-
-with app.app_context():
-    #Send loan reminders to Teams and email
-    loan_payload2 = Countdown()
-    teams_webhook_url = os.getenv('TEAMS_WEBHOOK_URL')
-    send_loan_reminder_notification(loan_payload2, teams_webhook_url)
-    Notify()
 
 @app.route('/', methods=['GET','POST'])
 def go():
@@ -224,12 +216,7 @@ def register():
 @login_required
 def home():
     loans = getAllLoanData()
-    # setDates()
-    # #Send loan reminders to Teams and email
-    #loan_payload2 = Countdown()
-    # teams_webhook_url = os.getenv('TEAMS_WEBHOOK_URL')
-    # send_loan_reminder_notification(loan_payload2, teams_webhook_url)
-    # Notify()
+    setDates()
     return render_template('home.html',loans=loans)
 
 
@@ -250,7 +237,6 @@ def request_loan():
     
     if form.validate_on_submit():
         try:
-            
             existing_loan = Loaned_Devices.query.filter(
                 (Loaned_Devices.barcode == form.barcode.data) 
             ).first()
