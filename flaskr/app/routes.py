@@ -3,7 +3,7 @@ import logging
 from app import app
 from flask import flash, render_template, redirect, url_for, request,current_app,session
 from app.forms import LoginForm, RegisterForm, ResetForm, LoanForm, ResetPassword, ResetForm, ReturnForm
-from app.models import Users, Faculty, Department, Loaned_Devices
+from app.models import Users, Loaned_Devices
 import datetime,requests,os
 from datetime import datetime, timedelta
 from sqlalchemy.exc import IntegrityError
