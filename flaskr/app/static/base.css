@@ -1,38 +1,27 @@
-body {
-    margin: 0px;
+.navbar-brand img{
+    width: 15%;
+    height: 10%;
 }
 
-img {
-    width: 170px;
-    height: 30px;
+.sub-menu-wrap{
+    position: absolute;
+    top: 100%;
+    right: 10%;
+    width: 320px;
 }
 
-.navbar {
-    width: 100%;
-    overflow: hidden;
-    background-color: rgb(36, 37, 38);
+.sub-menu{
+    background: #fff;
+    padding: 20px;
+    margin: 10px;
 }
 
-.navbar-links ul {
-    list-style-type: none;
-    padding: 0;
-    margin: 0;
+.user-info{
     display: flex;
-    justify-content: flex-end; /* Align items to the right */
+    align-items: center;
 }
 
-.navbar-links li {
-    margin-left: 15px; /* Adjust spacing between items */
-}
-
-.navbar-links a {
-    display: block;
-    color: white;
-    text-align: center;
-    padding: 15px;
-    text-decoration: none;
-}
-
-.navbar-links a:hover {
-    background-color: black;
+.user-info h3{
+    font-weight: 500;
+    
 }

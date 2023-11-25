@@ -128,6 +128,13 @@ def sendReturnEmail(loan):
     msg = Message(subject, recipients=[recipient], body=message)
     mail.send(msg)
 
+with app.app_context():
+    #Send loan reminders to Teams and email
+    loan_payload2 = Countdown()
+    teams_webhook_url = os.getenv('TEAMS_WEBHOOK_URL')
+    send_loan_reminder_notification(loan_payload2, teams_webhook_url)
+    Notify()
+
 @app.route('/', methods=['GET','POST'])
 def go():
     data = getSomeLoanData()
@@ -217,12 +224,12 @@ def register():
 @login_required
 def home():
     loans = getAllLoanData()
-    setDates()
-    #Send loan reminders to Teams and email
-    loan_payload2 = Countdown()
-    teams_webhook_url = os.getenv('TEAMS_WEBHOOK_URL')
-    send_loan_reminder_notification(loan_payload2, teams_webhook_url)
-    Notify()
+    # setDates()
+    # #Send loan reminders to Teams and email
+    # loan_payload2 = Countdown()
+    # teams_webhook_url = os.getenv('TEAMS_WEBHOOK_URL')
+    # send_loan_reminder_notification(loan_payload2, teams_webhook_url)
+    # Notify()
     return render_template('home.html',loans=loans)
 
 
