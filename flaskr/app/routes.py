@@ -83,24 +83,24 @@ def notifyWhenSubmitted(deviceLoan):
 def Countdown():
     today = datetime.today().date()
     devices = db.session.query(Loaned_Devices).all()
+    messages = []
     for device in devices:
         recipient = device.faculty_name
         recipient_email = device.faculty_email
         date = device.return_date
+        print("Return Date: ",date)
         datediff = (date-today).days
         days = ""
         if datediff == 1:
-                days = "one"
+            days = "one"
         elif datediff == 3:
-                days = "three"
+            days = "three"
         elif datediff == 5:
-                days = 'five'
-    try:
+            days = 'five'
         loan_return_message = f"<h1>Reminder for {recipient}</h1> \
         <p>Your loan is due in {days} days</p>"
-        return loan_return_message
-    except Exception as e:
-        print(f"Error creating loan submission payload: {str(e)}")
+        messages.append(loan_return_message)
+    return messages
         
 def send_loan_reminder_notification(payload, teams_webhook_url):
     try:
@@ -127,13 +127,6 @@ def sendReturnEmail(loan):
     subject = "Loan status: Returned thank you"
     msg = Message(subject, recipients=[recipient], body=message)
     mail.send(msg)
-
-with app.app_context():
-    #Send loan reminders to Teams and email
-    loan_payload2 = Countdown()
-    teams_webhook_url = os.getenv('TEAMS_WEBHOOK_URL')
-    send_loan_reminder_notification(loan_payload2, teams_webhook_url)
-    Notify()
 
 @app.route('/', methods=['GET','POST'])
 def go():
@@ -223,13 +216,13 @@ def register():
 @app.route('/home')
 @login_required
 def home():
+    teams_webhook_url = os.getenv('TEAMS_WEBHOOK_URL')
     loans = getAllLoanData()
-    # setDates()
-    # #Send loan reminders to Teams and email
-    # loan_payload2 = Countdown()
-    # teams_webhook_url = os.getenv('TEAMS_WEBHOOK_URL')
-    # send_loan_reminder_notification(loan_payload2, teams_webhook_url)
-    # Notify()
+    setDates()
+    messages = Countdown()
+    for message in messages:
+        send_loan_reminder_notification(message,teams_webhook_url)
+    Notify()
     return render_template('home.html',loans=loans)
 
 
