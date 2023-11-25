@@ -1,2 +1,7 @@
 __pycache__/
 test/
+
+# THIS IS REALLY IMPORTANT ENV FILES SHOULD NOT BE PUSHED TO GITHUB
+
+.flaskenv
+.env

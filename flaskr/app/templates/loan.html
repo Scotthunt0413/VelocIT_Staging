@@ -73,14 +73,10 @@
 
                         <div class="mb-3">
                             {{ form.faculty_email.label(class="form-label") }}
-                            {{ form.faculty_email(class="form-control" ~ (' is-invalid' if form.faculty_email.errors or form.faculty_email.data in existing_email else ''), required="required") }}   
+                            {{ form.faculty_email(class="form-control" ~ (' is-invalid' if form.faculty_email.errors or (form.faculty_email.data == '')), required="required") }}   
                             {% for error in form.faculty_email.errors %}
                                 <div class="invalid-feedback">Faculty email is required</div>
                             {% endfor %}
-
-                            {% if form.faculty_email.data in existing_email%}
-                                <div class="invalid-feedback">This email is already associated to a loan Please return device.</div>
-                            {% endif %}
                         </div>
 
                         {{ form.submit }}
