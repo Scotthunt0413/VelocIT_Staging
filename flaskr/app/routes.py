@@ -87,7 +87,6 @@ def Countdown():
         recipient = device.faculty_name
         recipient_email = device.faculty_email
         date = device.return_date
-        print("Return Date: ",date)
         datediff = (date-today).days
         days = ""
         if datediff == 1:
