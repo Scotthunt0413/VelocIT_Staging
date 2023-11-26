@@ -83,23 +83,35 @@ def Countdown():
     today = datetime.today().date()
     devices = db.session.query(Loaned_Devices).all()
     messages = []
+    reminders_sent = {'five': False, 'three': False, 'one': False}
+    
     for device in devices:
         recipient = device.faculty_name
         recipient_email = device.faculty_email
         date = device.return_date
-        datediff = (date-today).days
-        days = ""
-        if datediff == 1:
-            days = "one"
-        elif datediff == 3:
-            days = "three"
-        elif datediff == 5:
-            days = 'five'
-        loan_return_message = f"<h1>Reminder for {recipient}</h1> \
-        <p>Your loan is due in {days} days</p>"
-        messages.append(loan_return_message)
-    return messages
+        print("Return Date: ", date)
+        datediff = (date - today).days
         
+        if datediff > 0:
+            if datediff == 1 and not reminders_sent['one']:
+                loan_return_message = f"<h1>Reminder for {recipient}</h1> \
+                <p>Your loan is due in one day</p>"
+                messages.append(loan_return_message)
+                reminders_sent['one'] = True
+            elif datediff == 3 and not reminders_sent['three']:
+                loan_return_message = f"<h1>Reminder for {recipient}</h1> \
+                <p>Your loan is due in three days</p>"
+                messages.append(loan_return_message)
+                reminders_sent['three'] = True
+            elif datediff == 5 and not reminders_sent['five']:
+                loan_return_message = f"<h1>Reminder for {recipient}</h1> \
+                <p>Your loan is due in five days</p>"
+                messages.append(loan_return_message)
+                reminders_sent['five'] = True
+    print(f"Sending message: {messages}")
+    print(F"")
+    return messages
+    
 def send_loan_reminder_notification(payload, teams_webhook_url):
     try:
         payload = {
