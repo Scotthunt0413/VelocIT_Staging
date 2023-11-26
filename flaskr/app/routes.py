@@ -61,12 +61,12 @@ def Notify():
         days = ""
         if datediff == 1:
                 days = "one"
-        elif datediff == 3:
+        if datediff == 3:
                 days = "three"
-        elif datediff == 5:
+        if datediff == 5:
                 days = 'five'
         if days:
-            message = f"Hi, {recipient}. \n This is a reminder that your loan is due in {days} days. Please make sure to return it on time. \n Thanks, IT"
+            message = f"Hi, {recipient}. \n This is a reminder that your loan is due in {days} days. \n The return date is {date}. \n Please make sure to return it on time. \n Thanks, IT"
             subject = "Loan Reminder"
             msg = Message(subject, recipients=[recipient_email], body = message)
             mail.send(msg)
@@ -89,15 +89,20 @@ def Countdown():
         date = device.return_date
         datediff = (date-today).days
         days = ""
-        if datediff == 1:
-            days = "one"
-        elif datediff == 3:
-            days = "three"
-        elif datediff == 5:
-            days = 'five'
-        loan_return_message = f"<h1>Reminder for {recipient}</h1> \
-        <p>Your loan is due in {days} days</p>"
-        messages.append(loan_return_message)
+        if datediff > 0:
+            if datediff == 1:
+                days = "one"
+                loan_return_message = f"<h1>Reminder for {recipient}</h1> \
+            <p>Your loan is due in {days}. The return date is {date}. days</p>"
+            elif datediff == 3:
+                days = "three"
+                loan_return_message = f"<h1>Reminder for {recipient}</h1> \
+            <p>Your loan is due in {days}. The return date is {date}.days</p>"
+            elif datediff == 5:
+                days = 'five'
+                loan_return_message = f"<h1>Reminder for {recipient}</h1> \
+            <p>Your loan is due in {days} days. The return date is {date}.</p>"
+            messages.append(loan_return_message)
     return messages
         
 def send_loan_reminder_notification(payload, teams_webhook_url):
