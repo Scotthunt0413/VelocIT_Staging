@@ -89,17 +89,16 @@ def Countdown():
         date = device.return_date
         datediff = (date-today).days
         days = ""
-        if datediff > 0:
-            if datediff == 1:
-                days = "one"
-            if datediff == 3:
-                days = "three"
-            if datediff == 5:
-                days = 'five'
-            if days:
-                loan_return_message = f"<h1>Reminder for {recipient}</h1> \
-                <p>Your loan is due in {days} days. The return date is {date}.</p>"
-                messages.append(loan_return_message)
+        if datediff == 1:
+            days = "one"
+        if datediff == 3:
+            days = "three"
+        if datediff == 5:
+            days = 'five'
+        if days:
+            loan_return_message = f"<h1>Reminder for {recipient}</h1> \
+            <p>Your loan is due in {days} days. The return date is {date}.</p>"
+            messages.append(loan_return_message)
     return messages
         
 def send_loan_reminder_notification(payload, teams_webhook_url):
@@ -221,6 +220,7 @@ def home():
     setDates()
     messages = Countdown()
     for message in messages:
+        print(message)
         send_loan_reminder_notification(message,teams_webhook_url)
     Notify()
     return render_template('home.html',loans=loans)
