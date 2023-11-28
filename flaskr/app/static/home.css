@@ -36,3 +36,12 @@ img{
     left: 50%;
     transform: translate(-50%, -50%);
 }
+
+th{
+    background-color:rgb(27,35,77);
+}
+
+.center{
+    text-align: center;
+    font-weight: bold;
+}
