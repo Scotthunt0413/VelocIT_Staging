@@ -83,6 +83,8 @@ def Countdown():
     today = datetime.today().date()
     devices = db.session.query(Loaned_Devices).all()
     messages = []
+    reminders_sent = {'five': False, 'three': False, 'one': False}
+    
     for device in devices:
         recipient = device.faculty_name
         recipient_email = device.faculty_email
@@ -100,7 +102,7 @@ def Countdown():
             <p>Your loan is due in {days} days. The return date is {date}.</p>"
             messages.append(loan_return_message)
     return messages
-        
+    
 def send_loan_reminder_notification(payload, teams_webhook_url):
     try:
         payload = {
