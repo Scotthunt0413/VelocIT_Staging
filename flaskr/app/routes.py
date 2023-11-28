@@ -61,12 +61,12 @@ def Notify():
         days = ""
         if datediff == 1:
                 days = "one"
-        elif datediff == 3:
+        if datediff == 3:
                 days = "three"
-        elif datediff == 5:
+        if datediff == 5:
                 days = 'five'
         if days:
-            message = f"Hi, {recipient}. \n This is a reminder that your loan is due in {days} days. Please make sure to return it on time. \n Thanks, IT"
+            message = f"Hi, {recipient}. \n This is a reminder that your loan is due in {days} days. \n The return date is {date}. \n Please make sure to return it on time. \n Thanks, IT"
             subject = "Loan Reminder"
             msg = Message(subject, recipients=[recipient_email], body = message)
             mail.send(msg)
@@ -89,27 +89,18 @@ def Countdown():
         recipient = device.faculty_name
         recipient_email = device.faculty_email
         date = device.return_date
-        print("Return Date: ", date)
-        datediff = (date - today).days
-        
-        if datediff > 0:
-            if datediff == 1 and not reminders_sent['one']:
-                loan_return_message = f"<h1>Reminder for {recipient}</h1> \
-                <p>Your loan is due in one day</p>"
-                messages.append(loan_return_message)
-                reminders_sent['one'] = True
-            elif datediff == 3 and not reminders_sent['three']:
-                loan_return_message = f"<h1>Reminder for {recipient}</h1> \
-                <p>Your loan is due in three days</p>"
-                messages.append(loan_return_message)
-                reminders_sent['three'] = True
-            elif datediff == 5 and not reminders_sent['five']:
-                loan_return_message = f"<h1>Reminder for {recipient}</h1> \
-                <p>Your loan is due in five days</p>"
-                messages.append(loan_return_message)
-                reminders_sent['five'] = True
-    print(f"Sending message: {messages}")
-    print(F"")
+        datediff = (date-today).days
+        days = ""
+        if datediff == 1:
+            days = "one"
+        if datediff == 3:
+            days = "three"
+        if datediff == 5:
+            days = 'five'
+        if days:
+            loan_return_message = f"<h1>Reminder for {recipient}</h1> \
+            <p>Your loan is due in {days} days. The return date is {date}.</p>"
+            messages.append(loan_return_message)
     return messages
     
 def send_loan_reminder_notification(payload, teams_webhook_url):
@@ -231,6 +222,7 @@ def home():
     setDates()
     messages = Countdown()
     for message in messages:
+        print(message)
         send_loan_reminder_notification(message,teams_webhook_url)
     Notify()
     return render_template('home.html',loans=loans)
