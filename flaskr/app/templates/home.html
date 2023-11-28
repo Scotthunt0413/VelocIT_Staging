@@ -9,37 +9,38 @@
     <title>VelocIT</title>
 </head>
 <body>
-    {% if current_user.is_authenticated %}
-    <div class="alert" role="alert">
-        Hello {{current_user.First_Name}}!
-        {% endif %}
     </div>
-
         <p class="center">Hi, {{ current_user.First_Name }}</p>
         <p class="center">Loaned Device Status Report</p>
         <table class="table table-bordered">
-            <tr class=row-color>
-                <th>Barcode</th>
-                <th>Equipment Model</th>
-                <th>Equipment Type</th>
-                <th>Date Loan Was Taken Out</th>
-                <th>Return Date</th>
-                <th>Faculty Name</th>
-                <th>Faculty Email</th>
-                <th>Loan Status</th>
-            
-            </tr>
+            <thead>
+                <tr class=row-color>
+                    <th>Barcode</th>
+                    <th>Equipment Model</th>
+                    <th>Equipment Type</th>
+                    <th>Date Loan Was Taken Out</th>
+                    <th>Return Date</th>
+                    <th>Faculty Name</th>
+                    <th>Faculty Email</th>
+                    <th>Loan Status</th>
+                
+                </tr>
+            </thead>
+
             {% for loan in loans %}
-            <tr>
-                <td>{{loan.barcode}}</td>
-                <td>{{loan.Equipment_Model}}</td>
-                <td>{{loan.equipment_type}}</td>
-                <td>{{loan.return_date}}</td>
-                <td>{{loan.borrow_date}}</td>
-                <td>{{loan.faculty_name}}</td>
-                <td>{{loan.faculty_email}}</td>
-                <td>{{loan.loan_status}}</td>
-            </tr>
+            <tbody>
+                <tr>
+                    <td>{{loan.barcode}}</td>
+                    <td>{{loan.Equipment_Model}}</td>
+                    <td>{{loan.equipment_type}}</td>
+                    <td>{{loan.return_date}}</td>
+                    <td>{{loan.borrow_date}}</td>
+                    <td>{{loan.faculty_name}}</td>
+                    <td>{{loan.faculty_email}}</td>
+                    <td>{{loan.loan_status}}</td>
+                </tr>
+            </tbody>
+            
             {% else %}
             <tr>
                 <td colspan="8">No Data</td>

@@ -1,4 +1,4 @@
-*{
+* {
     margin: 0;
     padding: 0;
     font-family: 'Kantumruy', sans-serif;
@@ -6,78 +6,74 @@
     box-sizing: border-box;
 }
 
-.form-box img{
+.form-box img {
     width: 220px;
     height: 42px;
 }
 
-.input-field{
+.input-field {
     background: #eaeaea;
-    margin: 18px 0;
+    margin: 10px 0;
     border-radius: 3px;
     display: flex;
     align-items: center;
-
 }
 
-.input-field img{
-    width: 20px;
-    height: 20px;
+.input-field img {
+    width: 17px;
+    height: 17px;
     margin-left: 10px;
 }
 
 .input-group {
+    display: flex;
+    flex-direction: column; /* Align items in a column */
     align-items: center;
-
-    
-
 }
 
-.input-group a{
+.input-group a {
     color: white;
     outline: none;
     text-decoration: none;
-    
- 
+}
+
+form p{
+    color:#fff;
 }
 
 
-.form-box{
+.form-box {
     width: 90%;
-    max-width: 450px;
+    max-width: 350px;
     position: absolute;
-    top: 50%;
+    top: 55%; /* Adjusted from 60% to center vertically */
     left: 50%;
-    transform: translate(-50%,-50%);
+    transform: translate(-50%, -50%);
     background: #212529;
     padding: 50px 60px 70px;
     text-align: center;
 }
 
-.form-box h1{
+.form-box h1 {
     font-size: 20px;
     margin-bottom: 60px;
     color: white;
     position: relative;
-
 }
-
-
 
 .form-control {
     width: 100%;
     background: transparent;
     border: 0;
     outline: 0;
-    padding: 15px 15px;
-    
+    padding: 10px 12px;
 }
 
-.btn-field{
+.btn-field {
     width: 100%;
     display: flex;
-    justify-content: space-between;
-    
+    flex-direction: column; /* Align items in a column */
+    align-items: center;
 }
 
 .btn {
@@ -89,16 +85,19 @@
     outline: 0;
     cursor: pointer;
     transition: background 1s;
-    margin-left: 80px;
-    
-    
-
+    margin-top: 10px; /* Adjusted margin from the left */
 }
 
-.btn:hover{
-    background-color: #964B39;
+.btn:hover {
+    background-color: #964b39;
 }
 
+hr {
+    margin-top: 480px; /* Adjusted margin-top value to create space between login card and table */
+}
 
-
-
+.table {
+    width: 90%;
+    max-width: 600px; /* Adjusted max-width value for the table */
+    margin: 20px auto; /* Center the table horizontally and provide margin */
+}

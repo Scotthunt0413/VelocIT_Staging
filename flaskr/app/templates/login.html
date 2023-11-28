@@ -2,27 +2,35 @@
 
 {% block content %}
 
+<head>
+    <title>Login</title>
+    <link rel="stylesheet" href= "static/login.css">
+</head>
 
-
-<body class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <h2 class="text-center mb-4">Login Here</h2>
-            <p>{{ msg }}</p>
-            <form method="post" class="needs-validation" novalidate>
-                {{ form.hidden_tag() }}
-                <div class="mb-3">
-                    {{ form.user_name.label(class="form-label") }}
+<body>
+    <div class="form-box">
+        <h1> Sign in </h1>
+        <p>{{ msg }}</p>
+        <form method="post" class="needs-validation" novalidate>
+            {{ form.hidden_tag() }}
+            <div class="input-group">
+                <div class="input-field">
+                    <img src="static/images/user-icon.png">
                     {{ form.user_name(class="form-control", placeholder="Enter your username", required="required") }}
                 </div>
-                <div class="mb-3">
-                    {{ form.password.label(class="form-label") }}
+
+                <div class="input-field">
+                    <img src="static/images/lock-icon.png">
                     {{ form.password(class="form-control", placeholder="Enter your password", required="required") }}
                 </div>
-                {{ form.submit(class="btn btn-primary") }}
-            </form>
-            <p>Forgot password? <a href="{{ url_for('identity') }}">Reset</a> It<p>
-        </div>
+
+                <div class="btn-field">
+                     {{ form.submit(class="btn btn-primary") }}
+                </div>
+
+                <p>Forgot password? <a href="{{ url_for('identity') }}">Reset</a><p>
+            </div>
+        </form>
     </div>
     <hr>
     <table class="table table-bordered">
@@ -38,4 +46,5 @@
         {% endfor %}
     </table>
 </body>
+
 {% endblock %}
