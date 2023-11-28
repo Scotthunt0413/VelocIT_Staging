@@ -1,0 +1,47 @@
+
+.navbar-brand img,
+img{
+    width: 15%;
+    height: 10%;
+}
+
+
+.sub-menu-wrap{
+    position: absolute;
+    top: 100%;
+    right: 10%;
+    width: 320px;
+}
+
+.sub-menu{
+    background: #fff;
+    padding: 20px;
+    margin: 10px;
+}
+
+.user-info{
+    display: flex;
+    align-items: center;
+}
+
+.user-info h3{
+    font-weight: 500;
+    
+}
+
+
+.center-div {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+th{
+    background-color:rgb(27,35,77);
+}
+
+.center{
+    text-align: center;
+    font-weight: bold;
+}
