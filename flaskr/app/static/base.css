@@ -35,3 +35,12 @@ img{
     left: 50%;
     transform: translate(-50%, -50%);
 }
+
+.center{
+    text-align: center;
+    font-weight: bold;
+}
+
+table th{
+    background-color:rgb(27,35,77);
+}
