@@ -267,8 +267,23 @@ def request_loan():
             loan_payload = create_loan_submission_payload(data)
             send_loan_submission_notification(loan_payload, teams_webhook_url)
             
-            loan_payload2 = Countdown()
-            send_loan_reminder_notification(loan_payload2, teams_webhook_url)
+            today = datetime.today().date()
+            devices = db.session.query(Loaned_Devices).all()
+            for device in devices:
+                recipient = device.faculty_name
+                recipient_email = device.faculty_email
+                date = device.return_date
+                datediff = (date-today).days
+                days = ""
+                if datediff == 1:
+                    days = "one"
+                if datediff == 3:
+                    days = "three"
+                if datediff == 5:
+                    days = 'five'
+                if days:
+                    loan_payload2 = Countdown()
+                    send_loan_reminder_notification(loan_payload2, teams_webhook_url)
             Notify()
             save_loan_data(data)
 
