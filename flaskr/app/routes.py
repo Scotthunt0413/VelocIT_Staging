@@ -36,6 +36,23 @@ def getSomeLoanData():
         'loan_status': loan_status
     } for(barcode,loan_status) in data]
 
+def numberOfDays():
+    today = datetime.today().date()
+    devices = db.session.query(Loaned_Devices).all()
+    for device in devices:
+        recipient = device.faculty_name
+        recipient_email = device.faculty_email
+        date = device.return_date
+        datediff = (date-today).days
+        days = ""
+        if datediff == 1:
+                days = "one"
+        if datediff == 3:
+                days = "three"
+        if datediff == 5:
+                days = 'five'
+    return days, recipient, recipient_email, date
+
 
 def setDates():
     today = datetime.today().date()
@@ -51,20 +68,7 @@ def setDates():
             db.session.commit()
 #starting mail functionality
 def Notify():
-    today = datetime.today().date()
-    devices = db.session.query(Loaned_Devices).all()
-    for device in devices:
-        recipient = device.faculty_name
-        recipient_email = device.faculty_email
-        date = device.return_date
-        datediff = (date-today).days
-        days = ""
-        if datediff == 1:
-                days = "one"
-        if datediff == 3:
-                days = "three"
-        if datediff == 5:
-                days = 'five'
+        days, recipient, recipient_email, date = numberOfDays()
         if days:
             message = f"Hi, {recipient}. \n This is a reminder that your loan is due in {days} days. \n The return date is {date}. \n Please make sure to return it on time. \n Thanks, IT"
             subject = "Loan Reminder"
@@ -80,27 +84,12 @@ def notifyWhenSubmitted(deviceLoan):
     mail.send(msg)
 
 def Countdown():
-    today = datetime.today().date()
-    devices = db.session.query(Loaned_Devices).all()
-    messages = []
-    reminders_sent = {'five': False, 'three': False, 'one': False}
-    
-    for device in devices:
-        recipient = device.faculty_name
-        recipient_email = device.faculty_email
-        date = device.return_date
-        datediff = (date-today).days
-        days = ""
-        if datediff == 1:
-            days = "one"
-        if datediff == 3:
-            days = "three"
-        if datediff == 5:
-            days = 'five'
-        if days:
-            loan_return_message = f"<h1>Reminder for {recipient}</h1> \
-            <p>Your loan is due in {days} days. The return date is {date}.</p>"
-            messages.append(loan_return_message)
+    messages =[]
+    days, recipient, recipient_email, date = numberOfDays()
+    if days:
+        loan_return_message = f"<h1>Reminder for {recipient}</h1> \
+        <p>Your loan is due in {days} days. The return date is {date}.</p>"
+        messages.append(loan_return_message)
     return messages
     
 def send_loan_reminder_notification(payload, teams_webhook_url):
@@ -266,24 +255,10 @@ def request_loan():
             teams_webhook_url = os.getenv('TEAMS_WEBHOOK_URL')
             loan_payload = create_loan_submission_payload(data)
             send_loan_submission_notification(loan_payload, teams_webhook_url)
-            
-            today = datetime.today().date()
-            devices = db.session.query(Loaned_Devices).all()
-            for device in devices:
-                recipient = device.faculty_name
-                recipient_email = device.faculty_email
-                date = device.return_date
-                datediff = (date-today).days
-                days = ""
-                if datediff == 1:
-                    days = "one"
-                if datediff == 3:
-                    days = "three"
-                if datediff == 5:
-                    days = 'five'
-                if days:
-                    loan_payload2 = Countdown()
-                    send_loan_reminder_notification(loan_payload2, teams_webhook_url)
+            days, recipient, recipient_email, date = numberOfDays()
+            if days:
+                loan_payload2 = Countdown()
+                send_loan_reminder_notification(loan_payload2, teams_webhook_url)
             Notify()
             save_loan_data(data)
 
