@@ -47,12 +47,12 @@ def numberOfDays():
         datediff = (date-today).days
         days = ""
         if datediff == 1:
-                days = "one"
+                days = "one day"
         if datediff == 3:
-                days = "three"
+                days = "three days"
         if datediff == 5:
-                days = 'five'
-    if (days or recipient or recipient_email or date):
+                days = 'five days'
+    if (days and recipient and recipient_email and date):
         return days, recipient, recipient_email, date
     else:
         return
@@ -75,7 +75,7 @@ def Notify():
     try:
         days, recipient, recipient_email, date = numberOfDays()
         if days:
-            message = f"Hi, {recipient}. \n This is a reminder that your loan is due in {days} days. \n The return date is {date}. \n Please make sure to return it on time. \n Thanks, IT"
+            message = f"Hi, {recipient}. \n This is a reminder that your loan is due in {days}. \n The return date is {date}. \n Please make sure to return it on time. \n Thanks, IT"
             subject = "Loan Reminder"
             msg = Message(subject, recipients=[recipient_email], body = message)
             mail.send(msg)
@@ -96,7 +96,7 @@ def Countdown():
         days, recipient, recipient_email, date = numberOfDays()
         if days:
             loan_return_message = f"<h1>Reminder for {recipient}</h1> \
-            <p>Your loan is due in {days} days. The return date is {date}.</p>"
+            <p>Your loan is due in {days}. The return date is {date}.</p>"
             messages.append(loan_return_message)
     except TypeError:
         pass
@@ -268,10 +268,8 @@ def request_loan():
             reason = "submission"
             send_notification(loan_payload, teams_webhook_url, message, reason)
             try:
-                days, recipient, recipient_email, date = numberOfDays()
-                if days:
-                    loan_payload2 = Countdown()
-                    send_loan_reminder_notification(loan_payload2, teams_webhook_url)
+                loan_payload2 = Countdown()
+                send_loan_reminder_notification(loan_payload2, teams_webhook_url)
             except TypeError:
                 pass
             Notify()
