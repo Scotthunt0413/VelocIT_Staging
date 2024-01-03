@@ -101,23 +101,6 @@ def Countdown():
     except TypeError:
         pass
     return messages
-    
-def send_loan_reminder_notification(payload, teams_webhook_url):
-    try:
-        payload = {
-            "channel": "#Equipment Loan Notifications",
-            "text": payload
-        }
-        json_payload = json.dumps(payload)
-        response = requests.post(teams_webhook_url,
-                                 headers={'Content-Type': 'application/json'},
-                                 data=json_payload)
-        if response.status_code == 200:
-            print("Loan reminder notification sent successfully to Teams!")
-        else:
-            print(f"Failed to send loan reminder notification. Status code: {response.status_code}")
-    except Exception as e:
-        print(f"Error sending loan reminder notification: {str(e)}")
 
         
 
@@ -222,7 +205,9 @@ def home():
     messages = Countdown()
     for message in messages:
         print(message)
-        send_loan_reminder_notification(message,teams_webhook_url)
+        message2 = "Loan reminder notification sent successfully to Teams!"
+        reason = "reminder"
+        send_notification(message,teams_webhook_url,message2,reason)
     Notify()
     return render_template('home.html',loans=loans)
 
@@ -267,11 +252,6 @@ def request_loan():
             message = "Loan submission notification sent successfully to Teams!"
             reason = "submission"
             send_notification(loan_payload, teams_webhook_url, message, reason)
-            try:
-                loan_payload2 = Countdown()
-                send_loan_reminder_notification(loan_payload2, teams_webhook_url)
-            except TypeError:
-                pass
             Notify()
             save_loan_data(data)
 
